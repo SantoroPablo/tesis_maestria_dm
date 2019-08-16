@@ -30,6 +30,7 @@ class MyUNet(nn.Module):
         self.relu = nn.ReLU()
         self.pool = nn.MaxPool3d(2, return_indices=True)
         self.unpool = nn.MaxUnpool3d(2) # Luego se le pasan los indices
+        # TODO: revisar si conviene poner ConvTranspose3D mejor.
 
         self.conv_block1 = conv_block(1, 4, kernel_size=3, padding=1,
                                       stride=1)
