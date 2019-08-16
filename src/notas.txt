@@ -1,0 +1,3 @@
+* Por alguna razon, algunas de las esferas no se graficaron. Revisar por que
+  y armarlas de nuevo.
+
