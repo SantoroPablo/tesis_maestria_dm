@@ -1,8 +1,11 @@
 data/*
 tutoriales/*
 modelos/*
+src/samples/*
+src/__pycache__/*
+src/vae_esferas/__pycache__/*
+src/vae_esferas/py_classes/__pycache__/*
 runs/*
 */*.pyc
 */*.png
-*/__pycache__/*
 
