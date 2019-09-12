@@ -2,4 +2,4 @@ data/*
 tutoriales/*
 */*.pyc
 */*.png
-*.png
+*/*.pyc
