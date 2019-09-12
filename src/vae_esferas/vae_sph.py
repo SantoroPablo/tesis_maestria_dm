@@ -1,5 +1,5 @@
-def correr_VAE(data_name, num_run, z_dim, use_kldiv=True, sign_kldiv=1,
-              mult_kldiv=1, epochs=5):
+def correr_VAE(modelo, data_name, num_run, z_dim, use_kldiv=True, use_bce=False,
+        sign_kldiv=1, mult_kldiv=1, epochs=5):
     """
     VAE para las esferas 3D
     Parametros:
@@ -33,9 +33,6 @@ def correr_VAE(data_name, num_run, z_dim, use_kldiv=True, sign_kldiv=1,
     # Para importar datasets de esferas
     from HDF5SphDataset import HDF5SphDataset
 
-    # Variational autoencoder class
-    from VAE import VAE
-
     # Testeo si existe cuda
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -58,7 +55,7 @@ def correr_VAE(data_name, num_run, z_dim, use_kldiv=True, sign_kldiv=1,
                                                        shuffle=True)
 
     # Modelando
-    model = VAE(z_dim=z_dim).to(device)
+    model = modelo(z_dim=z_dim).to(device)
 
     optimizer = torch.optim.Adam(model.parameters(),
                                  lr=learning_rate, betas=(0.5, 0.999))
@@ -67,7 +64,6 @@ def correr_VAE(data_name, num_run, z_dim, use_kldiv=True, sign_kldiv=1,
     criterionL1 = nn.SmoothL1Loss()
     criterionKLDiv = nn.KLDivLoss()
 
-    z_codes = []
     # Start training
     model.train()
     for epoch in range(num_epochs):
@@ -75,9 +71,6 @@ def correr_VAE(data_name, num_run, z_dim, use_kldiv=True, sign_kldiv=1,
             # Forward pass
             x = x['sph'].to(device)
             x_reconst, mu, log_var, z = model(x)
-
-            if epoch == (num_epochs - 1) and len(z_codes) < 15:
-                z_codes.append(z)
 
             # Compute reconstruction loss and kl divergence
             # For KL divergence, see Appendix B in VAE paper or
@@ -94,12 +87,18 @@ def correr_VAE(data_name, num_run, z_dim, use_kldiv=True, sign_kldiv=1,
             kl_div = criterionKLDiv(x_reconst, x)
 
             # Backprop and optimize
-            if use_kldiv and sign_kldiv >= 0:
+            if use_kldiv and sign_kldiv >= 0 and use_bce:
                 loss = reconst_loss + reconst_L1 + mult_kldiv * kl_div
-            elif use_kldiv and sign_kldiv < 0:
+            elif use_kldiv and sign_kldiv < 0 and use_bce:
                 loss = reconst_loss + reconst_L1 - mult_kldiv * kl_div
-            elif use_kldiv is False:
+            elif use_kldiv and sign_kldiv >= 0 and use_bce is False:
+                loss = reconst_L1 + mult_kldiv * kl_div
+            elif use_kldiv and sign_kldiv < 0 and use_bce is False:
+                loss = reconst_L1 - mult_kldiv * kl_div
+            elif use_kldiv is False and use_bce:
                 loss = reconst_loss + reconst_L1
+            elif use_kldiv is False and use_bce is False:
+                loss = reconst_loss
 
             optimizer.zero_grad()
             loss.backward()
@@ -113,6 +112,4 @@ def correr_VAE(data_name, num_run, z_dim, use_kldiv=True, sign_kldiv=1,
 
     torch.save(model, RUTA_REPO + 'modelos/sph_vae_run_' + str(num_run) +
                '.pth')
-
-    return z_codes
 

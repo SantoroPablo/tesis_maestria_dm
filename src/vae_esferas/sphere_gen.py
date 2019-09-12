@@ -20,19 +20,13 @@ np.random.seed(123)
 
 for i in range(N):
     # Coordenadas del centro de la esfera
-    x = np.random.uniform(4, 28)
-    y = np.random.uniform(4, 28)
-    z = np.random.uniform(4, 28)
+    x = np.random.uniform(7, 25)
+    y = np.random.uniform(7, 25)
+    z = np.random.uniform(7, 25)
 
     centro = np.array([x, y, z])
     # Consideraciones del radio de la esfera con respecto a la bounding box
-    dif_abs = np.max(np.abs(16 - centro))
-    dif_abs_mask = np.abs(16 - centro) == dif_abs
-    r = np.random.uniform(4, 12)
-    valor = centro[dif_abs_mask][0]
-
-    if r + dif_abs > 16:
-        r = valor
+    r = np.random.uniform(2, 7)
 
     # La caja contenedora de la esfera es de 32x32x32
     bbox = np.zeros((32, 32, 32), dtype=int)

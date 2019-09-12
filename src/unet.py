@@ -30,40 +30,30 @@ class MyUNet(nn.Module):
         self.relu = nn.ReLU()
         self.pool = nn.MaxPool3d(2, return_indices=True)
         self.unpool = nn.MaxUnpool3d(2) # Luego se le pasan los indices
-        # TODO: revisar si conviene poner ConvTranspose3D mejor.
 
-        self.conv_block1 = conv_block(1, 4, kernel_size=3, padding=1,
-                                      stride=1)
-        self.conv_block2 = conv_block(4, 8, kernel_size=3, padding=1,
-                                      stride=1)
-        self.conv_block3 = conv_block(8, 12, kernel_size=3, padding=1,
-                                      stride=1)
+        self.conv_block1 = conv_block(1, 4, kernel_size=2,# padding=1,
+                                      stride=2)
+        self.conv_block2 = conv_block(4, 8, kernel_size=2,# padding=1,
+                                      stride=2)
+        self.conv_block3 = conv_block(8, 12, kernel_size=2,# padding=1,
+                                      stride=2)
 
-        self.unconv_block1 = unconv_block(12, 8, kernel_size=3, padding=1,
-                                         stride=1)
-        self.unconv_block2 = unconv_block(8, 4, kernel_size=3, padding=1,
-                                         stride=1)
-        self.unconv_block3 = unconv_block(4, 1, kernel_size=3, padding=1,
-                                         stride=1)
-        lay_en = [
-            nn.Conv3d(1, 4, kernel_size=2, stride=2),
-            nn.BatchNorm3d(4),
-            nn.MaxPool3d(2),
-        ]
-        lay_de = []
-
-        self.encoder = nn.Sequential(*lay_en)
-        self.decoder = nn.Sequential(*lay_de)
+        self.unconv_block1 = unconv_block(12, 8, kernel_size=2,# padding=1,
+                                         stride=2)
+        self.unconv_block2 = unconv_block(8, 4, kernel_size=2,# padding=1,
+                                         stride=2)
+        self.unconv_block3 = unconv_block(4, 1, kernel_size=2,# padding=1,
+                                         stride=2)
 
     def encode(self, x):
         """ Encoding of the input """
         # 32 x 32 x 32 x 1
         x = self.conv_block1(x)
-        x, indices1 = self.pool(x)
+        # x, indices1 = self.pool(x)
 
         # 16 x 16 x 16 x 4
         x = self.conv_block2(x)
-        x, indices2 = self.pool(x)
+        # x, indices2 = self.pool(x)
 
         # 8 x 8 x 8 x 8
         x = self.conv_block3(x)
@@ -72,7 +62,7 @@ class MyUNet(nn.Module):
         # 8 x 8 x 8 x 12
         h = x.view(-1, 8**3 * 12)
         h = self.relu(self.fc1(h))
-        return self.fc2(h), self.fc3(h), indices1, indices2
+        return self.fc2(h), self.fc3(h) # , indices1, indices2
 
     def reparameterize(self, mu, log_var):
         """ Reparameterizing trick done by the VAE """
@@ -80,7 +70,7 @@ class MyUNet(nn.Module):
         eps = torch.randn_like(std)
         return mu + eps * std
 
-    def decode(self, z, indices1, indices2):
+    def decode(self, z): # , indices1, indices2):
         """
         Decoding of the latent code made by the encoder and reparameterized
         """
@@ -91,11 +81,11 @@ class MyUNet(nn.Module):
         h = self.unconv_block1(h)
 
         # 8 x 8 x 8 x 8
-        h = self.unpool(h, indices2)
+        # h = self.unpool(h, indices2)
         h = self.unconv_block2(h)
 
         # 16 x 16 x 16 x 4
-        h = self.unpool(h, indices1)
+        # h = self.unpool(h, indices1)
         h = self.unconv_block3(h)
 
         # 32 x 32 x 32 x 1
@@ -106,8 +96,8 @@ class MyUNet(nn.Module):
         """
         FeedForward Network
         """
-        mu, log_var, indices1, indices2 = self.encode(x)
+        mu, log_var = self.encode(x) # indices1, indices2 = self.encode(x)
         z = self.reparameterize(mu, log_var)
-        x_reconst = self.decode(z, indices1, indices2)
+        x_reconst = self.decode(z) # , indices1, indices2)
         return x_reconst, mu, log_var, z
 

@@ -75,7 +75,7 @@ def correr_unet(data_name, num_run, z_dim, use_kldiv=True, sign_kldiv=1,
             x = x['sph'].to(device)
             x_reconst, mu, log_var, z = model(x)
 
-            if epoch == num_epochs - 1 and len(z_codes) < 15:
+            if epoch == num_epochs - 1:
                 z_codes.append(z)
 
             # Compute reconstruction loss and kl divergence

@@ -1,4 +1,6 @@
 import sys
+import datetime
+fecha = datetime.datetime.today().strftime('%Y%m%d')
 root_path = '/home/pablo/org/est/dm/mat/tesis_maestria_dm/repo/'
 sys.path.insert(0, root_path + 'src/vae_esferas/py_classes')
 sys.path.insert(0, root_path + 'src/')
@@ -116,6 +118,7 @@ for i in range(nrows):
             ax.set_xticklabels([])
             ax.set_yticklabels([])
 
+plt.savefig(root_path + fecha + '_figura.jpg')
 plt.show()
 
 # Analisis de los parametros del codigo latente
