@@ -1,2 +1,5 @@
 data/*
 tutoriales/*
+*/*.pyc
+*/*.png
+*.png
