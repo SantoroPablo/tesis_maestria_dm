@@ -1,0 +1,366 @@
+\documentclass[spanish]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{indentfirst}
+\usepackage[a4paper, margin=1 in]{geometry}
+\usepackage[spanish]{babel}
+
+% Paquetes para usar graficos desde mathcha.io
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{tikz}
+\usepackage{mathdots}
+\usepackage{yhmath}
+\usepackage{cancel}
+\usepackage{color}
+\usepackage{siunitx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{gensymb}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usetikzlibrary{fadings}
+\usetikzlibrary{patterns}
+\usetikzlibrary{shadows.blur}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\graphicspath{ {./images/} }
+\tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
+
+\begin{document}
+
+\input{tesis_title_page.tex}
+\input{abstract_es.tex}
+\input{abstract_en.tex}
+
+\section{Introducción}
+
+Dentro de la ciencia de datos actual, una de las áreas que más se
+están desarrollando en los últimos tiempos es la relacionada a las
+arquitecturas de redes neuronales y, en particular, a aquellas relacionadas
+con redes profundas, o ``Deep Learning'' en inglés.
+
+Teóricamente, cualquier red neuronal de tres capas (entrada, oculta
+y de salida) puede aproximar cualquier función, pero aún se desconoce
+el entrenamiento apropiado para poder alcanzar esa meta teórica.
+Por ende, se recurrió a agregar capas no redundantes que permiten
+alcanzar mejores resultados a los que se estaban logrando a través
+de las redes neuronales de tres capas, dando lugar a las llamadas
+redes profundas.
+
+Las redes profundas incidieron de manera decisiva en el procesamiento
+de imágenes en dos y tres dimensiones. Se han desarrollado y se continúan
+desarrollando redes con cada vez mejor precisión a la hora de reconocer
+y reconstruir figuras de las más diversas. Para la reconstrucción
+de modelos tridimensionales, las arquitecturas más comunes son los ``autoencoders'',
+las llamadas ``Generative Adversarial Networks'' (GAN) y los ``variational
+autoencoders'' (VAE). Recientemente se han comenzaron a desarrollar
+arquitecturas que, además de poder reconstruir los ejemplos de entrenamiento,
+puede generar nuevas imágenes, tomando nuevas muestras de datos de
+un espacio continuo multivariado \cite{Karras2018}.
+
+Un campo que está comenzando a tomar impulso recientemente es el de
+procesamiento de datos en tres dimensiones usando redes generativas
+con arquitecturas como GAN y VAE. Estas redes permiten, además de
+reconstruir figuras con las que se entrenen, ajustar una distribución
+multivariada (ajustada a tener una distribución normal estándar multivariada)
+a los fines de tener un espacio de muestreo continuo a través del cual poder generar
+nuevas figuras y poder hacer una interpolación continua en el espacio continuo de
+las figuras de entrenamiento. Esto permite poder explorar el espacio completo de las
+figuras de entrenamiento, con la posibilidad de encontrar figuras relacionadas a las
+originales pero con variaciones en los detalles, los cuales podrían ser útiles a los
+fines de entender y explorar el espacio de figuras con las que se trabajó en los
+datos originales.
+
+\subsection{Convoluciones, pooling, normalización por lotes}
+
+% En la versión de 2017 del libro "Deep Learning" de Goodfellow, Bengio y Courville
+% a partir de la página 330 comienza el capítulo de redes convolucionales.
+Las redes convolucionales son redes neuronales en las que al menos una de sus capas
+usan una operación de convolución en lugar de una multiplicación matricial
+\cite{goodfellow2016deep}. Este tipo de capas es fundamental para el procesamiento
+de tipos de datos que presentan un formato de cuadrícula, como las imágenes
+bidimensionales o los objetos tridimensionales. Es por ello que son uno de los
+bloques fundamentales para las redes que tratan con este tipo de datos.
+
+La convolución es una operación matemática que consiste en una media ponderada sobre
+los datos de entrada (en el caso de \(t\) discreto):
+
+\[s(t) = (x \circledast w)(t) = \sum_{a = -\infty}^{\infty} x(a)w(t-a) \]
+
+Donde \(x\) representa los datos de entrada, \(w\) son los pesos del promedio
+ponderado, que también se denominan \textit{kernel}.
+Para el caso discreto bidimensional discreto (imágenes, por ejemplo), en lugar de
+una suma infinita sólo se realiza sobre la suma de los valores de las matrices de
+entrada a la convolución. También el kernel \(w\) toma la forma de una matriz
+bidimensional con pesos adaptables por la red. Por ende, en el caso de una imagen
+\(I\) con un kernel \(K\):
+
+\[S(i,j)=(I \circledast K)(i,j)=\sum_{m}^{n} I(m,n)K(i-m,j-n)\]
+
+Por ejemplo, al aplicar la convolución a una matriz de entrada bidimensional:
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%uncomment if require: \path (0,460); %set diagram left start at 0, and has height of 460
+
+\draw   (115,33) -- (165,33) -- (165,83) -- (115,83) -- cycle ; %Shape: Square [id:dp008348541907688967] 
+\draw   (177,33) -- (227,33) -- (227,83) -- (177,83) -- cycle ; %Shape: Square [id:dp5695495374345101] 
+\draw   (238,33) -- (288,33) -- (288,83) -- (238,83) -- cycle ; %Shape: Square [id:dp08913217477595681] 
+\draw   (300,33) -- (350,33) -- (350,83) -- (300,83) -- cycle ; %Shape: Square [id:dp09565678498451557] 
+\draw   (115,93) -- (165,93) -- (165,143) -- (115,143) -- cycle ; %Shape: Square [id:dp6616061503281512] 
+\draw   (177,93) -- (227,93) -- (227,143) -- (177,143) -- cycle ; %Shape: Square [id:dp9731322863310219] 
+\draw   (238,93) -- (288,93) -- (288,143) -- (238,143) -- cycle ; %Shape: Square [id:dp1734488588540104] 
+\draw   (300,93) -- (350,93) -- (350,143) -- (300,143) -- cycle ; %Shape: Square [id:dp783784734771654] 
+\draw   (115,153) -- (165,153) -- (165,203) -- (115,203) -- cycle ; %Shape: Square [id:dp3810445646111744] 
+\draw   (177,153) -- (227,153) -- (227,203) -- (177,203) -- cycle ; %Shape: Square [id:dp597477459287147] 
+\draw   (238,153) -- (288,153) -- (288,203) -- (238,203) -- cycle ; %Shape: Square [id:dp3259061174876716] 
+\draw   (300,153) -- (350,153) -- (350,203) -- (300,203) -- cycle ; %Shape: Square [id:dp9728278094881708] 
+\draw   (112,29) -- (230,29) -- (230,147) -- (112,147) -- cycle ; %Shape: Square [id:dp8155679517421655] 
+\draw   (399,60) -- (449,60) -- (449,110) -- (399,110) -- cycle ; %Shape: Square [id:dp394644813826424] 
+\draw   (461,60) -- (511,60) -- (511,110) -- (461,110) -- cycle ; %Shape: Square [id:dp8614370121086297] 
+\draw   (399,120) -- (449,120) -- (449,170) -- (399,170) -- cycle ; %Shape: Square [id:dp595415369573254] 
+\draw   (461,120) -- (511,120) -- (511,170) -- (461,170) -- cycle ; %Shape: Square [id:dp8309992031835938] 
+\draw   (396,56) -- (514,56) -- (514,174) -- (396,174) -- cycle ; %Shape: Square [id:dp77375541391222] 
+\draw   (117,233) -- (213.5,233) -- (213.5,329.5) -- (117,329.5) -- cycle ; %Shape: Square [id:dp2906572996014607] 
+\draw   (111,228) -- (219.5,228) -- (219.5,336.5) -- (111,336.5) -- cycle ; %Shape: Square [id:dp4766592365283635] 
+\draw   (224,234) -- (320.5,234) -- (320.5,330.5) -- (224,330.5) -- cycle ; %Shape: Square [id:dp690329106444943] 
+\draw   (330,234) -- (426.5,234) -- (426.5,330.5) -- (330,330.5) -- cycle ; %Shape: Square [id:dp14628491601258453] 
+\draw   (117,344) -- (213.5,344) -- (213.5,440.5) -- (117,440.5) -- cycle ; %Shape: Square [id:dp268759623182556] 
+\draw   (224,345) -- (320.5,345) -- (320.5,441.5) -- (224,441.5) -- cycle ; %Shape: Square [id:dp5482508582899983] 
+\draw   (330,345) -- (426.5,345) -- (426.5,441.5) -- (330,441.5) -- cycle ; %Shape: Right Angle [id:dp2438723945511756] 
+\draw   (62.09,279.98) -- (62.09,86.11) -- (111.33,86.11) ; %Straight Lines [id:da4032615230182004] 
+\draw   (62.09,279.98) -- (109.33,279.98) ;
+\draw [shift={(111.33,279.98)}, rotate = 180] [color={rgb, 255:red, 0; green, 0; blue, 0}][line width=0.75] (10.93,-3.29) .. controls (6.95,-1.4) and (3.31,-0.3) .. (0,0) .. controls (3.31,0.3) and (6.95,1.4) .. (10.93,3.29);
+
+
+\draw (140,58) node   [align=left] {$\displaystyle a$}; % Text Node
+\draw (202,58) node   [align=left] {$\displaystyle b$}; % Text Node
+\draw (264,58) node   [align=left] {$\displaystyle c$}; % Text Node
+\draw (326,58) node   [align=left] {$\displaystyle d$}; % Text Node
+\draw (140,118) node   [align=left] {$\displaystyle e$}; % Text Node
+\draw (202,118) node   [align=left] {$\displaystyle f$}; % Text Node
+\draw (264,118) node   [align=left] {$\displaystyle g$}; % Text Node
+\draw (326,118) node   [align=left] {$\displaystyle h$}; % Text Node
+\draw (140,178) node   [align=left] {$\displaystyle i$}; % Text Node
+\draw (202,178) node   [align=left] {$\displaystyle j$}; % Text Node
+\draw (264,178) node   [align=left] {$\displaystyle k$}; % Text Node
+\draw (326,178) node   [align=left] {$\displaystyle l$}; % Text Node
+\draw (129,16) node   [align=left] {Input}; % Text Node
+\draw (424,85) node   [align=left] {$\displaystyle w$}; % Text Node
+\draw (486,85) node   [align=left] {$\displaystyle x$}; % Text Node
+\draw (424,145) node   [align=left] {$\displaystyle y$}; % Text Node
+\draw (486,145) node   [align=left] {$\displaystyle z$}; % Text Node
+\draw (418,43) node   [align=left] {Kernel}; % Text Node
+% Text Node
+\draw (169,284) node   [align=left] {$\displaystyle
+\begin{array}{{>{\displaystyle}l}}
+aw\ +bx\ +\ \\
+ey\ \ +\ fz
+\end{array}$};
+% Text Node
+\draw (276,285) node   [align=left] {$\displaystyle
+\begin{array}{{>{\displaystyle}l}}
+bw\ +cx\ +\ \\
+fy\ \ +\ gz
+\end{array}$};
+% Text Node
+\draw (382,286) node   [align=left] {$\displaystyle
+\begin{array}{{>{\displaystyle}l}}
+cw\ +dx\ +\ \\
+gy\ \ +\ hz
+\end{array}$};
+% Text Node
+\draw (168,393) node   [align=left] {$\displaystyle
+\begin{array}{{>{\displaystyle}l}}
+ew\ +fx\ +\ \\
+iy\ \ +\ jz
+\end{array}$};
+% Text Node
+\draw (275,394) node   [align=left] {$\displaystyle
+\begin{array}{{>{\displaystyle}l}}
+fw\ +gx\ +\ \\
+jy\ \ +\ kz
+\end{array}$};
+% Text Node
+\draw (381,395) node   [align=left] {$\displaystyle
+\begin{array}{{>{\displaystyle}l}}
+gw\ +hx\ +\ \\
+ky\ \ +\ lz
+\end{array}$};
+
+\end{tikzpicture}
+\caption{Un ejemplo de convolución bidimensional \cite{goodfellow2016deep}}
+\label{convolucion}
+\end{figure}
+
+Cuando el kernel es mas chico que una imagen, como se observa en la
+figura \ref{convolucion}, las conexiones entre los datos de entrada
+y los de salida son escasas, al contrario que en las tradicionales
+redes en las cuales una neurona de una capa oculta intermedia está
+completamente conectada con todas las neuronas de la capa anterior.
+
+% Hasta acá, un resumen con otras palabras del libro de Goodfellow
+\clearpage
+
+\section{Estado del arte}
+
+\subsection{Variational autoencoders}
+
+VAE, o ``Variational autoencoder'' por sus siglas en inglés, es una
+arquitectura basada en autoencoders. Un \textit{autoencoder} consiste
+en una red neuronal formada por dos partes, con la tarea de reconstruir
+los datos de entrada \(x\), minimizando la pérdida entre la
+reconstrucción y \(x\) \cite{goodfellow2016deep}.
+Esta red consta de dos partes. La primera, el \textit{encoder}, es la 
+que recibe los datos de entrada, transformándolos en su salida en un 
+tipo de código llamado \textit{código latente}, que luego sirve de
+dato de entrada al \textit{decoder}, cuya salida es una reconstrucción
+de los datos de entrada, con el objetivo de minimizar una función de
+pérdida entre la reconstrucción y los datos de entrada.
+Generalmente, la dimensión del código latente es mucho más reducida que
+la de los datos de entrada. Esto permite realizar una compresión de los
+mismos, que luego el \textit{decoder} reconstruye. Este tipo de
+compresión también es útil para limpiar los datos de entrada de ruido.
+Entrenando una red con datos con ruido agregado y usando una función de
+pérdida entre la reconstrucción y los datos originales, un autoencoder
+puede aprender a eliminar el ruido agregado, haciéndolo robusto al
+mismo.
+
+Otro aspecto importante de los códigos latentes es que tienen una
+cierta distribución desconocida, desde la cual se podrían muestrear
+datos para generar nuevos objetos, aplicando el \textit{decoder} a
+estos vectores latentes muestreados. No obstante, esto tiene varios
+problemas en este tipo de arquitectura \cite{Foster2019}:
+
+\begin{itemize}
+    \item La distribución de los datos no está definida, por lo que no
+        está claro entre los valores que se tiene que muestrear.
+    \item No está garantizada la continuidad del espacio de muestreo,
+        por lo que dos valores cercanos pueden ser radicalmente
+        distintos en su reconstrucción.
+    \item Si en los datos existen distintas clases de objetos, la
+        dispersión y el agrupamiento en el espacio de muestreo no está
+        determinado.
+\end{itemize}
+
+Los VAE ayudan a salvar estos problemas a la hora de generar nuevos
+datos usando autoencoders al agregar la restricción de que, en lugar
+de que el código latente esté formado por un sólo punto, el decoder
+asocie un objeto con una distribución multivariada normal con una
+determinada media \(\mu\) y matriz de covarianza \(\Sigma\). Asimismo,
+se supone que no hay covarianza en el espacio generado por el encoder,
+por ende la matriz de varianzas y covarianzas es diagonal, pudiéndose
+representar mediante un vector. Entonces el encoder genera dos vectores,
+uno de medias y otro de logaritmos de varianzas (dado que habitualmente
+se usa una función activación lineal, que tienen imagen
+\((-\infty;\infty)\) y se condice con la imagen del logaritmo). Luego,
+se puede extraer una muestra de esta distribución para alimentar el
+decoder y generar la reconstrucción de la imagen.
+
+El entrenamiento es el mismo que en el caso de los autoencoders. La
+función de pérdida tiene una componente adicional: la divergencia
+Kullback-Leibler. % TODO: ¿Quizá agregar alguna referencia acá sobre la divergencia?
+Esta divergencia mide cuán alejadas se encuentran dos distribuciones.
+En el caso de las redes VAE, mide cuán alejadas está la distribución
+multivariada normal generada por el encoder respecto a una distribución
+normal estándar multivariada, forzando a la red a adaptarse a generar
+distribuciones similares a una normal estándar.
+
+Este cambio puede suponer un problema para la generación de nuevos
+objetos, puesto que si prima la componente de la divergencia
+Kullback-Leibler por sobre la componente de la pérdida de reconstrucción
+a la hora de actualizar la red luego de cada \textit{epoch} de
+entrenamiento, el único incentivo que la red tendrá será en generar
+puntos aleatoriamiente distribuidos siguiendo una normal estándar y
+no reconstruirá correctamente los datos de entrada. Por otra parte,
+es posible que haya una correlación entre las variables que conforman
+la distribución y muchas variables semánticas en simultáneo. Esto
+tiene el efecto de que, si se cambia un sólo parámetro en el código
+latente, muchas propiedades del objeto reconstruido cambiarán al
+mismo tiempo, cuando es deseable que cada uno de los parámetros que
+conforman el código latente se anclen a unas pocas o una sola
+variable semántica. % TODO: es posible que tenga que definir qué entiendo por una variable semántica. Y no tengo una referencia para eso, a priori
+Este es un problema de \textit{enriedo} entre las variables semánticas
+en el código generado por el decoder, llamado \textit{entanglement} en
+inglés.
+En este sentido y proponiendo una solución especialmente al problema
+del enriedo, \cite{Higgins2017} propone adicionar un parámetro
+multiplicativo \(\beta\) a la componente de divergencia de
+Kullback-Leibler, pudiendo ajustar este parámetro para encontrar un
+óptimo de \textit{desenriedo} o \textit{disentanglement} y poder
+generar parámetros independientes, especialmente útil al generar
+nuevos objetos. El efecto de este parámero \(\beta\) es el de
+relajar o reforzar el efecto de la componente de divergencia.
+Al aumentar \(\beta\) se logra una mayor independencia de parámetros
+a costa de resignar calidad de reconstrucción. Ajustar \(\beta\)
+permite equilibrar este \textit{tradeoff}. En varios trabajos
+% TODO: Agregar citas donde explícitamente mencionen que agregan GAN para mejorar
+%       la calidad de la reconstrucción
+se agrega una red GAN para mejorar los detalles finos de las imágenes
+u objetos reconstruidos por una red VAE.
+
+\subsection{Arquitecturas de Deep Learning en 3D}
+
+VAE, junto con otros tipos de redes, como las GAN, conforman bloques
+fundamentales con las que se han armado arquitecturas más complejas.
+En \cite{Gao2019} las redes aprenden un conjunto de voxeles deformables
+para poder reconstruir figuras suaves, en lugar de reconstruir usando
+voxeles. Su arquitectura consta de dos VAE: La primera, que llaman
+``PartVAE'' se entrena un dataset con figuras etiquetadas por partes,
+por lo que aprende a reconstruir las partes por separado. La segunda,
+que llaman ``SP-VAE'' (por ``Structured Parts VAE'') aprende la
+estructura global del objeto, asegurando luego la coherencia de las
+partes ensambladas. En \cite{Muralikrishnan2019}, se utiliza la
+arquitectura VAE y la representación de objetos 3D en forma de voxeles,
+puntos y multiples vistas 2D para construir un mismo código latente
+que representa al mismo objeto, independientemente de su
+representación original y que permite reconstruir el mismo objeto en
+cualquiera de las tres formas de representación. Esta arquitectura se
+aplica tanto para tareas discriminativas como generativas. También
+existen otras formas derepresentaciones con performances destacables,
+como eluso de funciones de distancia con signo \cite{Park2019}
+(Signed Distance Functions, SDF, por sus siglas en inglés) en el que
+se muestrean puntos cerca de la superficie de un objeto teniendo en
+cuenta si el punto se encuentra dentro o fuera de la figura
+(representado por el signo) y la distancia más corta del punto hacia
+la superficie del objeto a entrenar. Esto permite que se calcule una
+SDF por cada una de las figuras de entrenamiento, teniendo luego un
+auto encoder (o auto decoder, un tipo de arquitectura que no usa
+encoders para entrenar, como en el caso de \cite{Park2019}) que
+realizar una inferencia de las SDF de cada figura y encontrar
+abstracciones entre las distintas SDF de cada figura de los datos de
+entrenamiento. Hay nuevas arquitecturas \cite{Olszewski2019} que
+también han logrado generar vistas nuevas de objetos tridimensionales
+(Novel View Synthesis, o NVS por sus siglas en inglés). En el caso de
+\cite{Olszewski2019}, se entrena usando varios objetos con múltiples
+vistas (imágenes en dos dimensiones) de un mismo objeto tridimensional
+en una arquitectura con encoder, un "bottleneck" (o "cuello de botella")
+y un decoder para recrear la imagen con las transformaciones aplicadas
+en el bottleneck. Lo interesante del método empleado consiste en que la
+NVS no es algo inferido por la red en el entrenamiento, sino que es
+aplicado de una forma no aprendida por la red en el bottleneck, lo que
+permite realizar otras transformaciones además de nuevas vistas de un
+objeto (como, por ejemplo, distintas poses de un ser humano) sin variar
+la forma de entrenar la red. Asimismo, las interpolaciones son
+diferenciables y permiten el correcto funcionamiento del algoritmo de
+backpropagation para poder actualizar los parámetros del encoder.
+
+% Agregar figura de la arquitectura de la TBN de Olszewski et al.
+
+\cite{Li2019} logra una mejor reconstrucción de figuras en tres dimensiones si se reconstruyen las partes por separado (teniendo datos de entrenamiento con partes claramente segmentadas, con el fin de poder dividirlas y usar distintos modelos para aprenderlas) y luego se ensamblan de acuerdo a la forma en que se corresponden las distintas partes, pudiendo tener leves variaciones respecto a las piezas originales pero correspondiéndose las partes entre sí a la hora del ensamble. Asimismo, eligiendo una de las piezas como ancla para el ensamble, pueden lograr generar distintas figuras dentro del espacio de figuras estudiado. La arquitectura que usan corresponde a un VAE-GAN: un variational autoencoder cuya reconstrucción de salida es la entrada de una red GAN. Esto genera un código latente formado por los códigos de las partes individuales, lo que alimenta una última red que es la encargada del ensamble de las partes de la figura.
+
+% Agregar diagrama de la arquitectura usada por Li2019
+
+\cite{Yin2019} propone una arquitectura llamada LOGAN, por sus siglas en inglés de \textit{Latent Overcomplete Generative Adversarial Network} con el propósito de lograr traducciones de figuras entre dos dominios distintos pero con características similares, como pueden ser sillas y mesas, de una forma no supervisada, es decir, no hay ninguna segmentación previa, ninguna correspondencia entre puntos realizada entre figuras de los dos dominios ni ningún tipo de emparejamiento de los dos dominios previo al entrenamiento, sino a ser encontrado por la red luego de terminado el entrenamiento.
+La arquitectura está compuesta por dos partes, un autoencoder y dos traductores que van en direcciones opuestas: uno traduce del dominio \textit{x} al \textit{y} y el otro, en el sentido opuesto. Estos traductores tienen forma de red GAN. Tanto los autoencoders como los traductores son entrenados de forma independiente entre sí pero siguiendo un orden: primero se entrena el autoencoder y luego, los traductores. La particularidad en el entrenamiento del autoencoder consiste en que los vectores latentes se forman a partir de las capas PointNet++ \cite{Qi2017} del encoder, de forma tal que forman un vector con la concatenación de las partes (tipo \textit{overcomplete}) y otros vectores con las partes individuales rellenos de ceros para completar el tamaño de vector necesario para alimentar el decoder. A su vez, se alimenta el decoder con todos estos vectores, de forma tal que la red puede aprender distintas características de forma independiente, lo que lleva a un \textit{disentangling} implícito en las partes que conforman el vector \textit{overcomplete}. Como función de pérdida se usa EMD (Earth Mover's Distance, por sus siglas en inglés). Luego se entrenan por separado las redes traductoras, cuya función de pérdida es algo más compleja para permitir la correcta traducción entre los dominios. La primera componente es la función de pérdida adversarial de la WGAN \cite{pmlr-v70-arjovsky17a} a la que se suma una componente de preservación de características, que mide el error de traducción entre una figura de un dominio \textit{x} a su mismo dominio, teniendo que replicar la misma figura. Esto permite que la red aprenda a preservar las caracteristicas importantes de la figura y a que la traducción al dominio \textit{y} preserve los aspectos más dominantes de la figura, haciendo sólo algunos cambios en la traducción. Por último, lo que detallan como una componente menor sólo para prevenir que un grupo de figuras del dominio \textit{y} abarquen todas las traducciones desde el dominio \textit{x}, agregan una última componente llamada \textit{de ciclo}, la cual comprende la pérdida de volver a traducir una figura desde \textit{y} hacia \textit{x} que previamente había sido traducida en el sentido contrario, teniendo que volverse a reconstruir la figura original, forzando a que haya más relaciones unívocas entre dominios.  
+
+\bibliographystyle{plain}
+\addcontentsline{toc}{section}{\refname}
+\bibliography{tesis_dm}
+
+\end{document}

@@ -1,0 +1,272 @@
+% Encoding: UTF-8
+
+@Article{Kingma2013,
+  author      = {Diederik P Kingma and Max Welling},
+  title       = {Auto-Encoding Variational Bayes},
+  abstract    = {How can we perform efficient inference and learning in directed probabilistic models, in the presence of continuous latent variables with intractable posterior distributions, and large datasets? We introduce a stochastic variational inference and learning algorithm that scales to large datasets and, under some mild differentiability conditions, even works in the intractable case. Our contributions is two-fold. First, we show that a reparameterization of the variational lower bound yields a lower bound estimator that can be straightforwardly optimized using standard stochastic gradient methods. Second, we show that for i.i.d. datasets with continuous latent variables per datapoint, posterior inference can be made especially efficient by fitting an approximate inference model (also called a recognition model) to the intractable posterior using the proposed lower bound estimator. Theoretical advantages are reflected in experimental results.},
+  date        = {2013-12-20},
+  eprint      = {1312.6114v10},
+  eprintclass = {stat.ML},
+  eprinttype  = {arXiv},
+  file        = {:http\://arxiv.org/pdf/1312.6114v10:PDF},
+  keywords    = {stat.ML, cs.LG},
+}
+
+@Article{Gao2019,
+  author      = {Lin Gao and Jie Yang and Tong Wu and Yu-Jie Yuan and Hongbo Fu and Yu-Kun Lai and Hao Zhang},
+  title       = {SDM-NET: Deep Generative Network for Structured Deformable Mesh},
+  abstract    = {We introduce SDM-NET, a deep generative neural network which produces structured deformable meshes. Specifically, the network is trained to generate a spatial arrangement of closed, deformable mesh parts, which respect the global part structure of a shape collection, e.g., chairs, airplanes, etc. Our key observation is that while the overall structure of a 3D shape can be complex, the shape can usually be decomposed into a set of parts, each homeomorphic to a box, and the finer-scale geometry of the part can be recovered by deforming the box. The architecture of SDM-NET is that of a two-level variational autoencoder (VAE). At the part level, a PartVAE learns a deformable model of part geometries. At the structural level, we train a Structured Parts VAE (SP-VAE), which jointly learns the part structure of a shape collection and the part geometries, ensuring a coherence between global shape structure and surface details. Through extensive experiments and comparisons with the state-of-the-art deep generative models of shapes, we demonstrate the superiority of SDM-NET in generating meshes with visual quality, flexible topology, and meaningful structures, which benefit shape interpolation and other subsequently modeling tasks.},
+  date        = {2019-08-13},
+  eprint      = {1908.04520v2},
+  eprintclass = {cs.GR},
+  eprinttype  = {arXiv},
+  file        = {:http\://arxiv.org/pdf/1908.04520v2:PDF},
+  keywords    = {cs.GR, cs.CV},
+}
+
+@Article{Park2019,
+  author      = {Jeong Joon Park and Peter Florence and Julian Straub and Richard Newcombe and Steven Lovegrove},
+  title       = {DeepSDF: Learning Continuous Signed Distance Functions for Shape Representation},
+  abstract    = {Computer graphics, 3D computer vision and robotics communities have produced multiple approaches to representing 3D geometry for rendering and reconstruction. These provide trade-offs across fidelity, efficiency and compression capabilities. In this work, we introduce DeepSDF, a learned continuous Signed Distance Function (SDF) representation of a class of shapes that enables high quality shape representation, interpolation and completion from partial and noisy 3D input data. DeepSDF, like its classical counterpart, represents a shape's surface by a continuous volumetric field: the magnitude of a point in the field represents the distance to the surface boundary and the sign indicates whether the region is inside (-) or outside (+) of the shape, hence our representation implicitly encodes a shape's boundary as the zero-level-set of the learned function while explicitly representing the classification of space as being part of the shapes interior or not. While classical SDF's both in analytical or discretized voxel form typically represent the surface of a single shape, DeepSDF can represent an entire class of shapes. Furthermore, we show state-of-the-art performance for learned 3D shape representation and completion while reducing the model size by an order of magnitude compared with previous work.},
+  date        = {2019-01-16},
+  eprint      = {1901.05103v1},
+  eprintclass = {cs.CV},
+  eprinttype  = {arXiv},
+  file        = {:http\://arxiv.org/pdf/1901.05103v1:PDF},
+  keywords    = {cs.CV},
+}
+
+@Article{Won:2019,
+  author    = {Won, Jungdam and Lee, Jehee},
+  journal   = {ACM Trans. Graph.},
+  title     = {Learning Body Shape Variation in Physics-based Characters},
+  year      = {2019},
+  number    = {6},
+  volume    = {38},
+  articleno = {207},
+  eprint    = {http://mrl.snu.ac.kr/publications/ProjectMorphCon/MorphCon.pdf},
+}
+
+@Article{Olszewski2019,
+  author      = {Kyle Olszewski and Sergey Tulyakov and Oliver Woodford and Hao Li and Linjie Luo},
+  title       = {Transformable Bottleneck Networks},
+  abstract    = {We propose a novel approach to performing fine-grained 3D manipulation of image content via a convolutional neural network, which we call the Transformable Bottleneck Network (TBN). It applies given spatial transformations directly to a volumetric bottleneck within our encoder-bottleneck-decoder architecture. Multi-view supervision encourages the network to learn to spatially disentangle the feature space within the bottleneck. The resulting spatial structure can be manipulated with arbitrary spatial transformations. We demonstrate the efficacy of TBNs for novel view synthesis, achieving state-of-the-art results on a challenging benchmark. We demonstrate that the bottlenecks produced by networks trained for this task contain meaningful spatial structure that allows us to intuitively perform a variety of image manipulations in 3D, well beyond the rigid transformations seen during training. These manipulations include non-uniform scaling, non-rigid warping, and combining content from different images. Finally, we extract explicit 3D structure from the bottleneck, performing impressive 3D reconstruction from a single input image.},
+  date        = {2019-04-13},
+  eprint      = {1904.06458v5},
+  eprintclass = {cs.CV},
+  eprinttype  = {arXiv},
+  file        = {:http\://arxiv.org/pdf/1904.06458v5:PDF},
+  keywords    = {cs.CV},
+}
+
+@Article{Li2019,
+  author      = {Jun Li and Chengjie Niu and Kai Xu},
+  title       = {Learning Part Generation and Assembly for Structure-aware Shape Synthesis},
+  abstract    = {Learning deep generative models for 3D shape synthesis is largely limited by the difficulty of generating plausible shapes with correct topology and reasonable geometry. Indeed, learning the distribution of plausible 3D shapes seems a daunting task for most existing holistic shape representation, given the significant topological variations of 3D objects even within the same shape category. Enlightened by the common view that 3D shape structure is characterized as part composition and placement, we propose to model 3D shape variations with a part-aware deep generative network which we call PAGENet. The network is composed of an array of per-part VAE-GANs, generating semantic parts composing a complete shape, followed by a part assembly module that estimates a transformation for each part to correlate and assemble them into a plausible structure. Through splitting the generation of part composition and part relations into separate networks, the difficulty of modeling structural variations of 3D shapes is greatly reduced. We demonstrate through extensive experiments that PAGENet generates 3D shapes with plausible, diverse and detailed structure, and show two prototype applications: semantic shape segmentation and shape set evolution.},
+  date        = {2019-06-16},
+  eprint      = {1906.06693v3},
+  eprintclass = {cs.CV},
+  eprinttype  = {arXiv},
+  file        = {:http\://arxiv.org/pdf/1906.06693v3:PDF},
+  keywords    = {cs.CV},
+}
+
+@Article{Ma2018,
+  author      = {Tengfei Ma and Jie Chen and Cao Xiao},
+  title       = {Constrained Generation of Semantically Valid Graphs via Regularizing Variational Autoencoders},
+  abstract    = {Deep generative models have achieved remarkable success in various data domains, including images, time series, and natural languages. There remain, however, substantial challenges for combinatorial structures, including graphs. One of the key challenges lies in the difficulty of ensuring semantic validity in context. For examples, in molecular graphs, the number of bonding-electron pairs must not exceed the valence of an atom; whereas in protein interaction networks, two proteins may be connected only when they belong to the same or correlated gene ontology terms. These constraints are not easy to be incorporated into a generative model. In this work, we propose a regularization framework for variational autoencoders as a step toward semantic validity. We focus on the matrix representation of graphs and formulate penalty terms that regularize the output distribution of the decoder to encourage the satisfaction of validity constraints. Experimental results confirm a much higher likelihood of sampling valid graphs in our approach, compared with others reported in the literature.},
+  date        = {2018-09-07},
+  eprint      = {1809.02630v2},
+  eprintclass = {cs.LG},
+  eprinttype  = {arXiv},
+  file        = {:http\://arxiv.org/pdf/1809.02630v2:PDF},
+  keywords    = {cs.LG, stat.ML},
+}
+
+@Article{Higgins2017,
+  author  = {Higgins, Irina and Matthey, Loic and Pal, Arka and Burgess, Christopher and Glorot, Xavier and Botvinick, Matthew and Mohamed, Shakir and Lerchner, Alexander},
+  journal = {ICLR},
+  title   = {beta-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework.},
+  year    = {2017},
+  number  = {5},
+  pages   = {6},
+  volume  = {2},
+}
+
+@InProceedings{Muralikrishnan2019,
+  author    = {Muralikrishnan, Sanjeev and Kim, Vladimir G and Fisher, Matthew and Chaudhuri, Siddhartha},
+  booktitle = {Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+  title     = {Shape Unicode: A Unified Shape Representation},
+  year      = {2019},
+  pages     = {3790--3799},
+  groups    = {[pablo:]},
+}
+
+@Article{Karras2018,
+  author      = {Tero Karras and Samuli Laine and Timo Aila},
+  title       = {A Style-Based Generator Architecture for Generative Adversarial Networks},
+  abstract    = {We propose an alternative generator architecture for generative adversarial networks, borrowing from style transfer literature. The new architecture leads to an automatically learned, unsupervised separation of high-level attributes (e.g., pose and identity when trained on human faces) and stochastic variation in the generated images (e.g., freckles, hair), and it enables intuitive, scale-specific control of the synthesis. The new generator improves the state-of-the-art in terms of traditional distribution quality metrics, leads to demonstrably better interpolation properties, and also better disentangles the latent factors of variation. To quantify interpolation quality and disentanglement, we propose two new, automated methods that are applicable to any generator architecture. Finally, we introduce a new, highly varied and high-quality dataset of human faces.},
+  date        = {2018-12-12},
+  eprint      = {1812.04948v3},
+  eprintclass = {cs.NE},
+  eprinttype  = {arXiv},
+  file        = {online:http\://arxiv.org/pdf/1812.04948v3:PDF},
+  groups      = {pablo:6},
+  keywords    = {cs.NE, cs.LG, stat.ML},
+}
+
+@InProceedings{Goodfellow2014,
+  author    = {Goodfellow, Ian and Pouget-Abadie, Jean and Mirza, Mehdi and Xu, Bing and Warde-Farley, David and Ozair, Sherjil and Courville, Aaron and Bengio, Yoshua},
+  booktitle = {Advances in neural information processing systems},
+  title     = {Generative adversarial nets},
+  year      = {2014},
+  pages     = {2672--2680}
+}
+
+@Article{Yin2019,
+  author  = {Yin, Kangxue and Chen, Zhiqin and Huang, Hui and Cohen-Or, Daniel and Zhang, Hao},
+  journal = {arXiv preprint arXiv:1903.10170},
+  title   = {LOGAN: Unpaired Shape Transform in Latent Overcomplete Space},
+  year    = {2019},
+}
+
+@InProceedings{Wu2016,
+  author    = {Wu, Jiajun and Zhang, Chengkai and Xue, Tianfan and Freeman, Bill and Tenenbaum, Josh},
+  booktitle = {Advances in neural information processing systems},
+  title     = {Learning a probabilistic latent space of object shapes via 3d generative-adversarial modeling},
+  year      = {2016},
+  pages     = {82--90},
+}
+
+@Book{Foster2019,
+  author    = {Foster, David},
+  publisher = {O'Reilly Media},
+  title     = {Generative Deep Learning: Teaching Machines to Paint, Write, Compose, and Play},
+  year      = {2019},
+}
+
+@InProceedings{Groueix2018,
+  author    = {Groueix, Thibault and Fisher, Matthew and Kim, Vladimir G and Russell, Bryan C and Aubry, Mathieu},
+  booktitle = {Proceedings of the IEEE conference on computer vision and pattern recognition},
+  title     = {A papier-m{\^a}ch{\'e} approach to learning 3d surface generation},
+  year      = {2018},
+  pages     = {216--224},
+}
+
+@InProceedings{Jack2018,
+  author       = {Jack, Dominic and Pontes, Jhony K and Sridharan, Sridha and Fookes, Clinton and Shirazi, Sareh and Maire, Frederic and Eriksson, Anders},
+  booktitle    = {Asian Conference on Computer Vision},
+  title        = {Learning free-form deformations for 3d object reconstruction},
+  year         = {2018},
+  organization = {Springer},
+  pages        = {317--333},
+}
+
+@book{goodfellow2016deep,
+  title={Deep learning},
+  author={Goodfellow, Ian and Bengio, Yoshua and Courville, Aaron},
+  year={2016},
+  publisher={MIT press}
+}
+
+@inproceedings{riegler2017octnet,
+  title={Octnet: Learning deep 3d representations at high resolutions},
+  author={Riegler, Gernot and Osman Ulusoy, Ali and Geiger, Andreas},
+  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+  pages={3577--3586},
+  year={2017}
+}
+
+@inproceedings{girdhar2016learning,
+  title={Learning a predictable and generative vector representation for objects},
+  author={Girdhar, Rohit and Fouhey, David F and Rodriguez, Mikel and Gupta, Abhinav},
+  booktitle={European Conference on Computer Vision},
+  pages={484--499},
+  year={2016},
+  organization={Springer}
+}
+
+@inproceedings{qi2017pointnet,
+  title={Pointnet: Deep learning on point sets for 3d classification and segmentation},
+  author={Qi, Charles R and Su, Hao and Mo, Kaichun and Guibas, Leonidas J},
+  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+  pages={652--660},
+  year={2017}
+}
+
+@inproceedings{savva2016shrec16,
+  title={Shrec16 track: largescale 3d shape retrieval from shapenet core55},
+  author={Savva, Manolis and Yu, Fisher and Su, Hao and Aono, M and Chen, B and Cohen-Or, D and Deng, W and Su, Hang and Bai, Song and Bai, Xiang and others},
+  booktitle={Proceedings of the eurographics workshop on 3D object retrieval},
+  pages={89--98},
+  year={2016}
+}
+
+@inproceedings{fan2017point,
+  title={A point set generation network for 3d object reconstruction from a single image},
+  author={Fan, Haoqiang and Su, Hao and Guibas, Leonidas J},
+  booktitle={Proceedings of the IEEE conference on computer vision and pattern recognition},
+  pages={605--613},
+  year={2017}
+}
+
+@inproceedings{arsalan2017synthesizing,
+  title={Synthesizing 3d shapes via modeling multi-view depth maps and silhouettes with deep generative networks},
+  author={Arsalan Soltani, Amir and Huang, Haibin and Wu, Jiajun and Kulkarni, Tejas D and Tenenbaum, Joshua B},
+  booktitle={Proceedings of the IEEE conference on computer vision and pattern recognition},
+  pages={1511--1519},
+  year={2017}
+}
+
+@article{burgess2018understanding,
+  title={Understanding disentangling in $$\beta$$-VAE},
+  author={Burgess, Christopher P and Higgins, Irina and Pal, Arka and Matthey, Loic and Watters, Nick and Desjardins, Guillaume and Lerchner, Alexander},
+  journal={arXiv preprint arXiv:1804.03599},
+  year={2018}
+}
+
+@article{G2L18,
+title = {Global-to-Local Generative Model for 3D Shapes},
+author = {Hao Wang and Nadav Schor and Ruizhen Hu and Haibin Huang and Daniel Cohen-Or and Hui Huang},
+journal = {ACM Transactions on Graphics (Proc. SIGGRAPH ASIA)},
+volume = {37},
+number = {6},
+pages = {214:1--214:10},  
+year = {2018},
+howpublished = {\url{https://github.com/Hao-HUST/G2LGAN}},
+commit = {35f3f451cfdec9e8ab300a62dc21ede5428b5555}
+} 
+
+@InProceedings{Qi2017,
+  author    = {Qi, Charles Ruizhongtai and Yi, Li and Su, Hao and Guibas, Leonidas J},
+  booktitle = {Advances in neural information processing systems},
+  title     = {Pointnet++: Deep hierarchical feature learning on point sets in a metric space},
+  year      = {2017},
+  pages     = {5099--5108},
+}
+
+@InProceedings{pmlr-v70-arjovsky17a,
+  author    = {Martin Arjovsky and Soumith Chintala and L{\'e}on Bottou},
+  booktitle = {Proceedings of the 34th International Conference on Machine Learning},
+  title     = {{W}asserstein Generative Adversarial Networks},
+  year      = {2017},
+  address   = {International Convention Centre, Sydney, Australia},
+  editor    = {Doina Precup and Yee Whye Teh},
+  month     = {06--11 Aug},
+  pages     = {214--223},
+  publisher = {PMLR},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {70},
+  abstract  = {We introduce a new algorithm named WGAN, an alternative to traditional GAN training. In this new model, we show that we can improve the stability of learning, get rid of problems like mode collapse, and provide meaningful learning curves useful for debugging and hyperparameter searches. Furthermore, we show that the corresponding optimization problem is sound, and provide extensive theoretical work highlighting the deep connections to different distances between distributions.},
+  pdf       = {http://proceedings.mlr.press/v70/arjovsky17a/arjovsky17a.pdf},
+  url       = {http://proceedings.mlr.press/v70/arjovsky17a.html},
+}
+
+@Comment{jabref-meta: databaseType:bibtex;}
+
+@Comment{jabref-meta: grouping:
+0 AllEntriesGroup:;
+1 StaticGroup:Markings\;2\;1\;\;\;\;;
+2 StaticGroup:[pablo:]\;2\;1\;\;\;\;;
+2 StaticGroup:pablo:6\;2\;1\;\;\;\;;
+}

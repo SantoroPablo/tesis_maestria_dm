@@ -1,0 +1,84 @@
+\documentclass[spanish]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage[spanish, english]{babel}
+
+\graphicspath{ {./images/} }
+
+\begin{document}
+
+\input{plan_tesis_title_page.tex}
+\input{abstract_es.tex}
+\input{abstract_en.tex}
+
+\section{Introducción}
+
+Dentro de la ciencia de datos actual, una de las áreas que más se
+están desarrollando en los últimos tiempos es la relacionada a las
+arquitecturas de redes neuronales y, en particular, a aquellas relacionadas
+con redes profundas, o ``Deep Learning'' en inglés.
+
+Teóricamente, cualquier red neuronal de tres capas (entrada, oculta
+y de salida) puede aproximar cualquier función, pero aún se desconoce
+el entrenamiento apropiado para poder alcanzar esa meta teórica.
+Por ende, se recurrió a agregar capas no redundantes que permiten
+alcanzar mejores resultados a los que se estaban logrando a través
+de las redes neuronales de tres capas, dando lugar a las llamadas
+redes profundas.
+
+Las redes profundas incidieron de manera decisiva en el procesamiento
+de imágenes en dos y tres dimensiones. Se han desarrollado y se continúan
+desarrollando redes con cada vez mejor precisión a la hora de reconocer
+y reconstruir figuras de las más diversas. Para la reconstrucción
+de modelos tridimensionales, las arquitecturas más comunes son los ``autoencoders'',
+las llamadas ``Generative Adversarial Networks'' (GAN) y los ``variational
+autoencoders'' (VAE). Recientemente se han comenzaron a desarrollar
+arquitecturas que, además de poder reconstruir los ejemplos de entrenamiento,
+puede generar nuevas imágenes, tomando nuevas muestras de datos de
+un espacio continuo multivariado \cite{Karras2018}.
+
+Un campo que está comenzando a tomar impulso recientemente es el de
+procesamiento de datos en tres dimensiones usando redes generativas
+con arquitecturas como GAN y VAE. Estas redes permiten, además de
+reconstruir figuras con las que se entrenen, ajustar una distribución
+multivariada (ajustada a tener una distribución normal estándar multivariada) a los fines de tener un espacio de muestreo continuo a través del cual poder generar nuevas figuras y poder hacer una interpolación continua en el espacio continuo de las figuras de entrenamiento. Esto permite poder explorar el espacio completo de las figuras de entrenamiento, con la posibilidad de encontrar figuras relacionadas a las originales pero con variaciones en los detalles, los cuales podrían ser útiles a los fines de entender y explorar el espacio de figuras con las que se trabajó en los datos originales.
+
+\subsection{Convoluciones, pooling, normalización por lotes}
+
+\section{Estado del arte}
+
+\subsection{Variational autoencoders}
+
+\subsection{Arquitecturas de Deep Learning en 3D}
+
+En \cite{Gao2019} las redes aprenden un conjunto de voxeles deformables
+para poder reconstruir figuras suaves, en lugar de reconstruir usando
+voxeles. Su arquitectura consta de dos VAE: La primera, que llaman
+``PartVAE'' se entrena un dataset con figuras etiquetadas por partes,
+por lo que aprende a reconstruir las partes por separado. La segunda,
+que llaman ``SP-VAE'' (por ``Structured Parts VAE'') aprende la
+estructura global del objeto, asegurando luego la coherencia de las
+partes ensambladas. En \cite{Muralikrishnan2019}, se utiliza la arquitectura VAE y la representación de objetos 3D en forma de voxeles, puntos y multiples vistas 2D para construir un mismo código latente que representa al mismo objeto, independientemente de su representación original y que permite reconstruir el mismo objeto en cualquiera de las tres formas de representación. Esta arquitectura se aplica tanto para tareas discriminativas como generativas. También existen otras formas derepresentaciones con performances destacables, como eluso de funciones de distancia con signo \cite{Park2019} (Signed Distance Functions, SDF, por sus siglas en inglés) en el que se muestrean puntos
+cerca de la superficie de un objeto teniendo en cuenta si el punto
+se encuentra dentro o fuera de la figura (representado por el signo)
+y la distancia más corta del punto hacia la superficie del objeto
+a entrenar. Esto permite que se calcule una SDF por cada una de las
+figuras de entrenamiento, teniendo luego un auto encoder (o auto decoder, un tipo de arquitectura que no usa encoders para entrenar, como en el caso de \cite{Park2019}) que realizar una inferencia de las SDF
+de cada figura y encontrar abstracciones entre las distintas SDF de
+cada figura de los datos de entrenamiento. Hay nuevas arquitecturas
+\cite{Olszewski2019} que también han logrado generar vistas nuevas
+de objetos tridimensionales (Novel View Synthesis, o NVS por sus siglas
+en inglés). En el caso de \cite{Olszewski2019}, se entrena usando varios objetos con múltiples vistas (imágenes en dos dimensiones) de un mismo objeto tridimensional en una arquitectura con encoder, un "bottleneck" (o "cuello de botella") y un decoder para recrear la imagen con las transformaciones aplicadas en el bottleneck. Lo interesante del método empleado consiste en que la NVS no es algo inferido por la red en el entrenamiento, sino que es aplicado de una forma no aprendida por la red en el bottleneck, lo que permite realizar otras transformaciones además de nuevas vistas de un objeto (como, por ejemplo, distintas poses de un ser humano) sin variar la forma de entrenar la red. Asimismo, las interpolaciones son diferenciables y permiten el correcto funcionamiento del algoritmo de backpropagation para poder actualizar los parámetros del encoder.
+
+% Agregar figura de la arquitectura de la TBN de Olszewski et al.
+
+\cite{Li2019} logra una mejor reconstrucción de figuras en tres dimensiones si se reconstruyen las partes por separado (teniendo datos de entrenamiento con partes claramente segmentadas, con el fin de poder dividirlas y usar distintos modelos para aprenderlas) y luego se ensamblan de acuerdo a la forma en que se corresponden las distintas partes, pudiendo tener leves variaciones respecto a las piezas originales pero correspondiéndose las partes entre sí a la hora del ensamble. Asimismo, eligiendo una de las piezas como ancla para el ensamble, pueden lograr generar distintas figuras dentro del espacio de figuras estudiado. La arquitectura que usan corresponde a un VAE-GAN: un variational autoencoder cuya reconstrucción de salida es la entrada de una red GAN. Esto genera un código latente formado por los códigos de las partes individuales, lo que alimenta una última red que es la encargada del ensamble de las partes de la figura.
+
+% Agregar diagrama de la arquitectura usada por Li2019
+
+\bibliographystyle{plain}
+\addcontentsline{toc}{section}{\refname}
+\bibliography{tesis_dm}
+
+\end{document}

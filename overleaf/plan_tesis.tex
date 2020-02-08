@@ -1,0 +1,210 @@
+\documentclass[spanish]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage[spanish]{babel}
+\usepackage[a4paper, margin=1 in]{geometry}
+\usepackage{indentfirst}
+\graphicspath{ {./images/} }
+
+\begin{document}
+
+\input{plan_tesis_title_page.tex}
+
+
+\section{Resumen}
+El presente plan de trabajo propone como proyecto de tesis la implementación de una arquitectura de red neuronal
+profunda a modelos tridimensionales. El objetivo principal es desarrollar un modelo generativo \cite{Foster2019}
+que permita explorar el espacio de forma de las figuras de entrenamiento y que, además, sea capaz de generar
+nuevas variantes para estos objetos. En el contexto de este problema, es deseable que las características
+morfológicas y estéticas de los modelos generados puedan ser controladas mediante parámetros independientes. Nos
+proponemos evaluar distintas arquitecturas tradicionales de la literatura en redes neuronales profundas y bases
+de datos tanto propias como existentes \cite{G2L18} para el análisis de los modelos generativos que deriven de
+esta tesis. Se probará, asimismo, la capacidad de aislar los parámetros constitutivos de las figuras por parte
+de estas redes para poder comprender mejor las distintas características capturadas por las redes y para poder
+modificarlos de forma independiente al resto de los otros parámetros, asociados estos a características
+específicas de las figuras.
+
+\section{Tema de investigación}
+El éxito de los modelos de redes neuronales profundas aplicados a imágenes ha llevado a muchos investigadores a
+intentar trasladar estas técnicas a datos tridimensionales. Además de los habituales casos de clasificación
+\cite{qi2017pointnet, savva2016shrec16} y reconstrucción \cite{fan2017point, arsalan2017synthesizing}, hay cada
+vez más trabajos \cite{riegler2017octnet, girdhar2016learning} que emplean diversas arquitecturas de red neuronal
+para entrenar modelos generativos: se pretende, no sólo la correcta reconstrucción y/o clasificación de los datos
+sino también poder tomar nuevas muestras de la distribución generadora de los datos. Esto es, el modelo
+generativo tiene un componente estocástico que aproxima a la implícita función generadora de datos de
+entrenamiento, con la cual luego se pueden muestrear nuevos objetos. De esta manera se pueden generar datos no
+observados por el modelo, sino inferidos a partir de una serie reducida de parámetros denominados
+\textit{latentes} que describen el espacio en el que se encuentran los datos y que se suelen organizar en una
+representación vectorial multidimensional.
+
+Algunas de las arquitecturas actualmente más utilizadas en el campo de redes generativas profundas son los
+\textit{Variational Autoencoders} (VAE) \cite{Kingma2013}, y \textit{Redes Generativas Antagónicas}
+(Generative Adversarial Networks - GAN) \cite{Goodfellow2014} (Figura \ref{GAN}). Estas serán las arquitecturas
+que se usarán en el desarrollo de la tesis, observando su performance tanto en la reconstrucción de datos como en
+la obtención de nuevos y en la capacidad de generar parámetros independientes con los cuales manipular distintas
+características de las figuras generadas por ellos asociadas en los códigos latentes generados.
+
+\begin{figure}[h]
+\includegraphics[height=4cm]{images/gan_generator.png}
+\centering
+\caption{Ejemplo de generador de red GAN en \cite{Wu2016} para la generación de objetos}
+\label{GAN}
+\end{figure}
+
+Muchas de las arquitecturas de red propuestas hasta el momento
+\cite{Gao2019, Park2019, Olszewski2019, Li2019, Muralikrishnan2019, Yin2019} intentan lograr una reconstrucción
+fidedigna de los datos de entrada a las redes a la vez que inferir una serie de parámetros que, a posteriori, se
+puedan muestrear para generar nuevos datos. Asimismo, otro de los objetivos que se suelen perseguir en este tipo
+de modelos es lograr que los parámetros latentes sean independientes, lo que significa que las alteraciones de
+algunas componentes del vector latente sólo afecten ciertas partes de las figuras y no a otras, con el objetivo
+de dejar constantes algunos aspectos y modificar otros. Este problema es particularmente desafiante, ya que
+implica que la red debe aprender automáticamente la semántica de los modelos tridimensionales que intenta
+reconstruir, diferenciando su forma y estilo, y asignando diferentes parámetros para controlar sus variaciones.
+Los intentos por resolver este problema abarcan un amplio abanico de estrategias, desde entrenar redes
+individuales en datos previamente segmentados \cite{Li2019} a modificar ciertos aspectos de la función de pérdida
+y/o de la arquitectura de la red para lograr que la red identifique los parámetros latentes
+\cite{Yin2019, Higgins2017}. En esta tesis proponemos utilizar diversas estrategias operando sobre la
+arquitectura de la red neuronal profunda con el doble objetivo de generar parámetros independientes para el
+muestreo de nuevos objetos sin entrenar más de una red para lograrlo. Ésta es la diferencia principal con la
+literatura actual, en donde no alcanzan las arquitecturas existentes a generar un código latente con parámetros
+independientes entrenando sólo un modelo.
+
+En cuanto a datos tridimensionales existen distintos tipos de datos que se pueden considerar. Los más frecuentes
+son las mallas poligonales \cite{Groueix2018}, nubes de puntos en espacio tridimensional \cite{qi2017pointnet},
+voxeles \cite{girdhar2016learning} o incluso vistas ya proyectadas en 2D del objeto  \cite{Muralikrishnan2019}
+(Figura \ref{ShapeUnicode}). Cada una de estas representaciones presenta ventajas y desventajas. En esta tesis
+nos proponemos trabajar con representaciones voxelizadas, principalmente con el fin de aprovechar la gran
+cantidad de modelos de disponibilidad pública disponibles en este formato. Además, en nuestro contexto, la 
+representación volumétrica mediante voxels tiene otras ventajas tales como la fácil generación de datos
+sintéticos para testeo y por último, la fácil y natural adaptación de las redes profundas convolucionales
+(Convolutional Neural Networks, o CNN por sus siglas en inglés) existentes para imágenes en dos dimensiones a
+datos tridimensionales. No obstante, esta elección puede presentar problemas de escalabilidad, ya que incluso
+a resoluciones bajas la cantidad de datos crece de forma cúbica. Por ende, trabajaremos en bajas resoluciones
+de manera que sea posible entrenar nuestras arquitecturas de red en tiempos razonables. Además, las
+representaciones voxelizadas de objetos representan de manera correcta la forma y las distintas partes de las
+que se componen.
+
+\begin{figure}[h]
+\includegraphics[width=8cm]{images/shape_unicode.png}
+\centering
+\caption{Ejemplos de VAE para generar una traducción entre distintas formas de representación de datos en \cite{Muralikrishnan2019}}
+\label{ShapeUnicode}
+\end{figure}
+
+% REVISAR ESTO BIEN
+
+La importancia de este tipo de redes generativas se debe a la vasta posibilidad de aplicaciones que pueden
+tener este tipo de arquitecturas, desde interpolaciones en un espacio continuo de parámetros que permitan la
+generación de figuras que no se han observado en tiempo de entrenamiento como también poder aislar diversos
+aspectos de los datos para luego poder manipular las características de diseño de las figuras sin conocer
+previamente una función generadora de objetos, sino simplemente teniendo disponibles datos sobre los cuales
+entrenar arquitecturas de este tipo. Esto puede dar lugar a aplicaciones en el diseño industrial de productos
+manufacturados como también aportar herramientas inteligentes a las interfaces de generación y manipulación
+de contenido digital 3D como por ejemplo Blender \footnote{https://www.blender.org} o SolidWorks
+\footnote{https://www.solidworks.com}.
+
+\section{Estado del arte}
+Los autoencoders son redes neuronales compuestas por dos partes. La primera consiste en el encoder, que
+comprimen los datos en una representación vectorial de dimensionalidad reducida, y el decoder, que toma dicha
+representación vectorial y reconstruye los datos de entrada a la red \cite{Foster2019}. Estas redes se
+entrenan minimizando una función de pérdida entre los datos de entrada y de salida, por ende, el
+entrenamiento de autoencoders es no supervisado, teniendo como objetivo la correcta reconstrucción de los
+datos de entrada. Una de las características de los autoencoders es que permiten la proyección de datos en un
+subespacio de menor dimensionalidad, los cuales representan una generalización, al capturar variables
+latentes en el espacio de los datos.
+Las arquitecturas VAE \cite{Kingma2013} y GAN \cite{Goodfellow2014} son la base para muchas variantes de
+autoencoders aplicadas a modelos generativos de redes profundas para datos tridimensionales, incluso muchas
+veces usadas de forma conjunta en redes que se dan en llamar VAE-GAN \cite{Li2019}. Es este último tipo de
+arquitecturas y las VAE las que serán de mayor enfoque en el trabajo. VAE consiste en una modificación de
+los autoencoders tradicionales: se agrega una nueva componente a la función de pérdida (que habitualmente
+consta de componentes de errores de reconstrucción), la divergencia Kullback-Leibler. La idea es que cada
+uno de los componentes del código latente se asemeje a una normal estándar, con lo que, cuanto más alta la
+divergencia, más incide esta componente en la función de pérdida, y más se forzará la red a distribuir al
+código latente como una normal multivariada estándar. Las arquitecturas GAN, por su parte, consisten en
+entrenar dos redes profundas con objetivos antagónicos. Por un lado, la red Generadora tiene como misión
+aprender a generar  contenido a partir de un código latente que se muestrea de forma aleatoria de una
+distribución a priori, habitualmente normal estándar. El contenido generado (imágenes, modelos
+tridimensionales, etc.) se somete luego al escrutinio de una segunda red, el Discriminador. Esta red, que
+consiste en un clasificador, tiene como misión distinguir entre el contenido real (provenientes del
+dataset) y falso (proveniente del Generador). Esto hace que estas redes se entrenen con objetivos
+contrapuestos: la función de pérdida del generador consiste en incrementar el error del Discriminador,
+y el Discriminador debe evitar que el Generador lo engañe \cite{goodfellow2016deep}. Luego del
+entrenamiento, el Generador puede generar nuevos objetos a partir del muestreo de la distribución
+utilizada. Generalmente, en los VAE-GAN, se usa una arquitectura VAE como generador y se adosa un
+discriminador para detectar si una imagen es verdadera o falsa. Esto consigue, por lo general, una mayor
+definición en características de alta varianza en el dataset (Figura \ref{PartVAE-GAN}).
+
+\begin{figure}[h]
+\includegraphics[height=5cm]{images/PartVAE-GAN.png}
+\centering
+\caption{Arquitectura VAE-GAN por parte en un dataset segmentado (izquierda) para reconstruir figuras ensamblando las partes (derecha) \cite{Li2019}}
+\label{PartVAE-GAN}
+\end{figure}
+
+Si bien se puede lograr una mejor reconstrucción usando autoencoders tradicionales, la ventaja de usar
+VAE es el hecho de obtener un espacio continuo en el código latente y variables del mismo con una
+distribución cercana a una normal estándar, lo que facilita luego el poder muestrear fácilmente nuevo
+contenido de ese espacio. No obstante, se ha observado \cite{Higgins2017, burgess2018understanding}
+que el código latente formado por VAE tiene sus componentes muy correlacionados, lo que provoca que
+variar una sola de estas componentes impacta en múltiples cambios semánticamente relacionados en las
+figuras generadas. Esta característica dificulta el uso de este código para controlar las mencionadas
+características de forma independiente. En la literatura, se propone resolver este problema modificando
+la función de pérdida \cite{Higgins2017} o modificando la arquitectura \cite{Li2019, Yin2019}. De esta
+forma se consiguen parámetros más independientes a costa de perder un poco de calidad en la
+reconstrucción de objetos. En \cite{Yin2019} se genera un tipo de código llamado ``overcomplete'', el
+cual está compuesto por salidas intermedias de las capas de la red de entrada, lo cual genera un
+``disentangling'' implícito en estas partes a la hora de la reconstrucción de los datos de entrada.
+\cite{Li2019}, por otro lado, adopta la estrategia de entrenar una red VAE-GAN por cada una de las
+partes de los objetos de un dataset previamente segmentado, en donde a la salida de estas redes las
+partes reconstruidas entran en una red que es la encargada del ensamblaje de las partes. La desventaja
+fundamental de esta forma de trabajo es el entrenar varias redes para reconstruir una misma forma, por
+lo que la complejidad del modelo escala rápido. \cite{Park2019} usa una simplificación de autoencoders
+llamada autodecoders, que no entrenan un encoder y el código latente se adapta mediante el uso del
+algoritmo de propagación hacia atrás. En este caso, la arquitectura propuesta aproxima una función
+signo, la cual reconstruye figuras a partir de datos en forma de puntos muestreados cercanos a la
+superficie de un objeto. Usando transformaciones en el código latente y en la orientación de los
+objetos de entrenamiento, \cite{Olszewski2019} propone una arquitectura que puede anclar en el código
+latente las rotaciones de un objeto, pudiendo generar nuevas vistas no usadas en los datos de
+entrenamiento, logrando este objetivo usando vistas en imágenes bidimensionales de objetos
+tridimensionales. \cite{Higgins2017} usa un coeficiente para modificar una componente de divergencia
+Kullback-Leibler, el cual funciona como un hiperparámetro del modelo a ajustar para conseguir un mejor
+``disentangling''.
+
+\section{Objetivos}
+\textbf{\textit{Objetivo general:}} Entender y proponer un modelo generativo de figuras tridimensionales
+que generen un espacio de dimensiones latentes independientes entre sí con los cuales generar nuevas
+muestras de figuras.
+
+\textbf{\textit{Objetivos específicos:}}
+\begin{enumerate}
+   \item Implementar distintos modelos generativos para la generación de espacios de dimensiones latentes
+	   con parámetros independientes.
+   \item Entrenar las arquitecturas implementadas sobre datos sintéticos generados a partir de una
+	   función generativa de datos tridimensionales conocida, con el fin de entender la capacidad de
+	   aquellas de aproximar la función generadora utilizada.
+   \item Evaluar el desempeño sobre los datos sintéticos y sobre las bases de datos existentes. 
+\end{enumerate}
+
+\section{Plan de Trabajo}
+\textit{Etapas a cumplir según el comentado proyecto de investigación:}
+\begin{enumerate}
+   \item \textbf{Revisión bibliográfica.} Investigación del estado del arte sobre distintos tipos de redes
+	   profundas utilizadas sobre datos bi y tridimensionales y los resultados conseguidos.
+   \item \textbf{Recopilación / generación de datos.}Utilización de datos sintéticos y conjuntos de datos
+	   utilizados en otros trabajos del área.
+   \item \textbf{Evaluación de distintas arquitecturas sobre datos sintéticos.}
+   \item \textbf{Evaluación de distintas arquitecturas sobre datos utilizados en otros trabajos del área.}
+	   Especialmente evaluar las arquitecturas utilizadas en el punto anterior en estos datos.
+   \item \textbf{Análisis de los resultados obtenidos y preparación del informe final.}
+\end{enumerate}
+\begin{center}
+   \includegraphics[width=1\textwidth]{images/gantt.png}
+\end{center}
+
+\bibliographystyle{plain}
+\addcontentsline{toc}{section}{\refname}
+\bibliography{tesis_dm}
+
+\end{document}
+
