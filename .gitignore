@@ -9,3 +9,8 @@ runs/*
 */*.pyc
 */*.png
 
+# Extensiones de archivos a no considerar
+*.zip*
+*.tar*
+*.gz*
+*.bz*
