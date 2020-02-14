@@ -32,7 +32,7 @@
 
 \begin{document}
 
-\input{tesis_title_page.tex}
+\input{plan_tesis_title_page.tex}
 \input{abstract_es.tex}
 \input{abstract_en.tex}
 
@@ -207,107 +207,32 @@ completamente conectada con todas las neuronas de la capa anterior.
 % Hasta acá, un resumen con otras palabras del libro de Goodfellow
 \clearpage
 
+
 \section{Estado del arte}
 
 \subsection{Variational autoencoders}
+Los VAE (\textit{Variational AutoEncoders}, por sus siglas en inglés)
+son una variante de los autoencoders (AE) tradicionales, del cual
+modifican la forma en que la arquitectura representa los objetos en
+el espacio de códigos latentes.  
 
-VAE, o ``Variational autoencoder'' por sus siglas en inglés, es una
-arquitectura basada en autoencoders. Un \textit{autoencoder} consiste
-en una red neuronal formada por dos partes, con la tarea de reconstruir
-los datos de entrada \(x\), minimizando la pérdida entre la
-reconstrucción y \(x\) \cite{goodfellow2016deep}.
-Esta red consta de dos partes. La primera, el \textit{encoder}, es la 
-que recibe los datos de entrada, transformándolos en su salida en un 
-tipo de código llamado \textit{código latente}, que luego sirve de
-dato de entrada al \textit{decoder}, cuya salida es una reconstrucción
-de los datos de entrada, con el objetivo de minimizar una función de
-pérdida entre la reconstrucción y los datos de entrada.
-Generalmente, la dimensión del código latente es mucho más reducida que
-la de los datos de entrada. Esto permite realizar una compresión de los
-mismos, que luego el \textit{decoder} reconstruye. Este tipo de
-compresión también es útil para limpiar los datos de entrada de ruido.
-Entrenando una red con datos con ruido agregado y usando una función de
-pérdida entre la reconstrucción y los datos originales, un autoencoder
-puede aprender a eliminar el ruido agregado, haciéndolo robusto al
-mismo.
+En los AE, el \textit{encoder} representa los objetos en un punto en
+el espacio, mientras que en los VAE estos se representan como una
+distribución \cite{Foster2019}. La ventaja de esto es que brinda
+continuidad, al no ser ya un punto discontinuo de otros objetos sino
+teniendo en cuenta que el espacio representa la probabilidad de ser un
+objeto u otro, permitiendo transiciones más suaves en el espacio de
+códigos latentes de un objeto a otro.
 
-Otro aspecto importante de los códigos latentes es que tienen una
-cierta distribución desconocida, desde la cual se podrían muestrear
-datos para generar nuevos objetos, aplicando el \textit{decoder} a
-estos vectores latentes muestreados. No obstante, esto tiene varios
-problemas en este tipo de arquitectura \cite{Foster2019}:
+Al terminar el entrenamiento de un \textit{autoencoder} no se obtienen
+buenos resultados al generar una muestra aleatoria en el espacio de
+los códigos latentes
+% Revisar aca si ponemos el caso de MNIST que probé, sería lo más sensato
+% En el paper de SDF hacen eso, ponen MNIST para mostrar por que usan un auto-decoder.
 
-\begin{itemize}
-    \item La distribución de los datos no está definida, por lo que no
-        está claro entre los valores que se tiene que muestrear.
-    \item No está garantizada la continuidad del espacio de muestreo,
-        por lo que dos valores cercanos pueden ser radicalmente
-        distintos en su reconstrucción.
-    \item Si en los datos existen distintas clases de objetos, la
-        dispersión y el agrupamiento en el espacio de muestreo no está
-        determinado.
-\end{itemize}
-
-Los VAE ayudan a salvar estos problemas a la hora de generar nuevos
-datos usando autoencoders al agregar la restricción de que, en lugar
-de que el código latente esté formado por un sólo punto, el decoder
-asocie un objeto con una distribución multivariada normal con una
-determinada media \(\mu\) y matriz de covarianza \(\Sigma\). Asimismo,
-se supone que no hay covarianza en el espacio generado por el encoder,
-por ende la matriz de varianzas y covarianzas es diagonal, pudiéndose
-representar mediante un vector. Entonces el encoder genera dos vectores,
-uno de medias y otro de logaritmos de varianzas (dado que habitualmente
-se usa una función activación lineal, que tienen imagen
-\((-\infty;\infty)\) y se condice con la imagen del logaritmo). Luego,
-se puede extraer una muestra de esta distribución para alimentar el
-decoder y generar la reconstrucción de la imagen.
-
-El entrenamiento es el mismo que en el caso de los autoencoders. La
-función de pérdida tiene una componente adicional: la divergencia
-Kullback-Leibler. % TODO: ¿Quizá agregar alguna referencia acá sobre la divergencia?
-Esta divergencia mide cuán alejadas se encuentran dos distribuciones.
-En el caso de las redes VAE, mide cuán alejadas está la distribución
-multivariada normal generada por el encoder respecto a una distribución
-normal estándar multivariada, forzando a la red a adaptarse a generar
-distribuciones similares a una normal estándar.
-
-Este cambio puede suponer un problema para la generación de nuevos
-objetos, puesto que si prima la componente de la divergencia
-Kullback-Leibler por sobre la componente de la pérdida de reconstrucción
-a la hora de actualizar la red luego de cada \textit{epoch} de
-entrenamiento, el único incentivo que la red tendrá será en generar
-puntos aleatoriamiente distribuidos siguiendo una normal estándar y
-no reconstruirá correctamente los datos de entrada. Por otra parte,
-es posible que haya una correlación entre las variables que conforman
-la distribución y muchas variables semánticas en simultáneo. Esto
-tiene el efecto de que, si se cambia un sólo parámetro en el código
-latente, muchas propiedades del objeto reconstruido cambiarán al
-mismo tiempo, cuando es deseable que cada uno de los parámetros que
-conforman el código latente se anclen a unas pocas o una sola
-variable semántica. % TODO: es posible que tenga que definir qué entiendo por una variable semántica. Y no tengo una referencia para eso, a priori
-Este es un problema de \textit{enriedo} entre las variables semánticas
-en el código generado por el decoder, llamado \textit{entanglement} en
-inglés.
-En este sentido y proponiendo una solución especialmente al problema
-del enriedo, \cite{Higgins2017} propone adicionar un parámetro
-multiplicativo \(\beta\) a la componente de divergencia de
-Kullback-Leibler, pudiendo ajustar este parámetro para encontrar un
-óptimo de \textit{desenriedo} o \textit{disentanglement} y poder
-generar parámetros independientes, especialmente útil al generar
-nuevos objetos. El efecto de este parámero \(\beta\) es el de
-relajar o reforzar el efecto de la componente de divergencia.
-Al aumentar \(\beta\) se logra una mayor independencia de parámetros
-a costa de resignar calidad de reconstrucción. Ajustar \(\beta\)
-permite equilibrar este \textit{tradeoff}. En varios trabajos
-% TODO: Agregar citas donde explícitamente mencionen que agregan GAN para mejorar
-%       la calidad de la reconstrucción
-se agrega una red GAN para mejorar los detalles finos de las imágenes
-u objetos reconstruidos por una red VAE.
 
 \subsection{Arquitecturas de Deep Learning en 3D}
 
-VAE, junto con otros tipos de redes, como las GAN, conforman bloques
-fundamentales con las que se han armado arquitecturas más complejas.
 En \cite{Gao2019} las redes aprenden un conjunto de voxeles deformables
 para poder reconstruir figuras suaves, en lugar de reconstruir usando
 voxeles. Su arquitectura consta de dos VAE: La primera, que llaman
@@ -321,20 +246,70 @@ puntos y multiples vistas 2D para construir un mismo código latente
 que representa al mismo objeto, independientemente de su
 representación original y que permite reconstruir el mismo objeto en
 cualquiera de las tres formas de representación. Esta arquitectura se
-aplica tanto para tareas discriminativas como generativas. También
-existen otras formas derepresentaciones con performances destacables,
-como eluso de funciones de distancia con signo \cite{Park2019}
-(Signed Distance Functions, SDF, por sus siglas en inglés) en el que
-se muestrean puntos cerca de la superficie de un objeto teniendo en
-cuenta si el punto se encuentra dentro o fuera de la figura
-(representado por el signo) y la distancia más corta del punto hacia
-la superficie del objeto a entrenar. Esto permite que se calcule una
-SDF por cada una de las figuras de entrenamiento, teniendo luego un
-auto encoder (o auto decoder, un tipo de arquitectura que no usa
-encoders para entrenar, como en el caso de \cite{Park2019}) que
-realizar una inferencia de las SDF de cada figura y encontrar
-abstracciones entre las distintas SDF de cada figura de los datos de
-entrenamiento. Hay nuevas arquitecturas \cite{Olszewski2019} que
+aplica tanto para tareas discriminativas como generativas.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%       
+%%%%% Apartado nuevo debatiendo las ideas de SDF de Park2019 %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%       
+\cite{Park2019} propone una red que representa los objetos tridimensionales
+en un campo volumétrico cuyo valor en cualquier punto representa la 
+distancia de ese punto a la superficie del objeto, y su signo representa si
+el punto se encuenta en el interior o en el exterior del objeto. De esta
+forma, la superficie se encuentra en el valor cero devuelto por la función
+aprendida por la red, llamada \textit{SDF} (\textit{SignedDistance
+Function} por sus siglas en inglés).
+
+Los datos usados para entrenar el modelo consisten en un muestreo de puntos
+cercanos a la superficie de objetos representados como mallas de triangulos.
+Luego, a cada punto se le aplica la función SDF, obteniendo un valor para
+cada punto, siendo la combinación de los puntos y su valor de SDF los datos
+de entrenamiento.
+
+La arquitectura entrenada consiste en un \textit{autodecoder}: solo el
+código latente y el decoder de un tradicional autoencoder es usado. Para
+cada uno de los elementos del dataset de entrenamiento, se inicializa un
+código latente aleatorio que luego es modificado por el algoritmo de
+\textit{backpropagation}. La forma de operar es similar a un
+\textit{autoencoder}, el codigo latente representa una codificación de SDF,
+que luego es utilizado para reconstruir cada objeto usando la función SDF
+inferida por la red. Como resultados comparables con otro tipo de redes,
+la arquitectura propuesta logra captar detalles finos de los objetos y
+puede reconstruirlos con una alta resolucion. No obstante, en objetos
+muy detallados puede fallar en reconstruirlos. Otra de los logros de la
+red es poder disminuir el tamaño en memoria de los objetos y del modelo
+debido a la elección de representación de los mismos elegida. Esto hace
+posible un entrenamiento más rápido y menores necesidades computacionales
+que otras representaciones para una misma representación. No obstante,
+\cite{Park2019} reporta que la forma habitual de entrenamiento de un
+VAE no les ha dado resultado para este tipo de problemas, por lo que
+podría suponerse que esta red tiene problemas para generar nuevos objetos % Esta parte es suposición, no sé si convenga ponerla.
+creando nuevos códigos latentes para alimentar el \textit{autodecoder}.
+La forma de entrenamiento tampoco permite conocer la distribución a
+posteriori del espacio de códigos latentes del dataset de entrenamiento.
+Otro de los problemas al intentar usar esta red es debido a que la red
+entrenada es específica de los datos usados, ya que no hay
+\textit{encoder} que permita generar nuevos codigos latentes a partir
+de nuevos datos. Esto es, la red aprende solo una representación
+comprimida de los datos de entrenamiento.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%       
+%%%%% Apartado viejo debatiendo las ideas de SDF de Park2019 %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%       
+% También existen otras formas de representaciones con performances
+% destacables, como eluso de funciones de distancia con signo \cite{Park2019}
+% (Signed Distance Functions, SDF, por sus siglas en inglés) en el que
+% se muestrean puntos cerca de la superficie de un objeto teniendo en
+% cuenta si el punto se encuentra dentro o fuera de la figura
+% (representado por el signo) y la distancia más corta del punto hacia
+% la superficie del objeto a entrenar. Esto permite que se calcule una
+% SDF por cada una de las figuras de entrenamiento, teniendo luego un
+% auto encoder (o auto decoder, un tipo de arquitectura que no usa
+% encoders para entrenar, como en el caso de \cite{Park2019}) que
+% realizar una inferencia de las SDF de cada figura y encontrar
+% abstracciones entre las distintas SDF de cada figura de los datos de
+% entrenamiento.
+
+Hay nuevas arquitecturas \cite{Olszewski2019} que
 también han logrado generar vistas nuevas de objetos tridimensionales
 (Novel View Synthesis, o NVS por sus siglas en inglés). En el caso de
 \cite{Olszewski2019}, se entrena usando varios objetos con múltiples
@@ -352,7 +327,19 @@ backpropagation para poder actualizar los parámetros del encoder.
 
 % Agregar figura de la arquitectura de la TBN de Olszewski et al.
 
-\cite{Li2019} logra una mejor reconstrucción de figuras en tres dimensiones si se reconstruyen las partes por separado (teniendo datos de entrenamiento con partes claramente segmentadas, con el fin de poder dividirlas y usar distintos modelos para aprenderlas) y luego se ensamblan de acuerdo a la forma en que se corresponden las distintas partes, pudiendo tener leves variaciones respecto a las piezas originales pero correspondiéndose las partes entre sí a la hora del ensamble. Asimismo, eligiendo una de las piezas como ancla para el ensamble, pueden lograr generar distintas figuras dentro del espacio de figuras estudiado. La arquitectura que usan corresponde a un VAE-GAN: un variational autoencoder cuya reconstrucción de salida es la entrada de una red GAN. Esto genera un código latente formado por los códigos de las partes individuales, lo que alimenta una última red que es la encargada del ensamble de las partes de la figura.
+\cite{Li2019} logra una mejor reconstrucción de figuras en tres dimensiones
+si se reconstruyen las partes por separado (teniendo datos de entrenamiento
+con partes claramente segmentadas, con el fin de poder dividirlas y usar
+distintos modelos para aprenderlas) y luego se ensamblan de acuerdo a la
+forma en que se corresponden las distintas partes, pudiendo tener leves
+variaciones respecto a las piezas originales pero correspondiéndose las
+partes entre sí a la hora del ensamble. Asimismo, eligiendo una de las
+piezas como ancla para el ensamble, pueden lograr generar distintas
+figuras dentro del espacio de figuras estudiado. La arquitectura que usan
+corresponde a un VAE-GAN: un variational autoencoder cuya reconstrucción
+de salida es la entrada de una red GAN. Esto genera un código latente
+formado por los códigos de las partes individuales, lo que alimenta una
+última red que es la encargada del ensamble de las partes de la figura.
 
 % Agregar diagrama de la arquitectura usada por Li2019
 

@@ -1,0 +1,14 @@
+Una de las principales ventajas de las redes generativas modernas como los VAE (TODO: citar a Kingma)
+y los GAN (TODO: citar paper de GAN y de Arjovski sobre los WGAN) consiste en la capacidad de poder
+generar objetos a partir de los datos de entrenamiento. Asimismo, las redes VAE permiten poder generar
+un \textit{disentanglement} de los parámetros que conforman el vector latente generado por el
+\textit{decoder}. No obstante, aún no se ha logrado en el ámbito de los objetos tridimensionales una
+red que sea capaz de aislar las partes de un objeto usando una sola red para luego poder manipular
+estas partes a través de cambios en el código latente muestreado. \cite{Li2019} puede realizar esto
+con un dataset previamente segmentado pero usando una arquitectura VAE-GAN distinta por cada parte, 
+para luego ensamblar estas partes usando una red que aprende las transformaciones necesarias para
+generar objetos plausibles a partir de estas partes. El principal problema que vemos con esto es
+la multiplicidad de arquitecturas y de parámetros que se necesita entrenar para poder reconstruir de 
+forma correcta un objeto. Nuestra red, POVAE, \textit{Part Overcomplete Variational Auto Encoder}
+permite un \textit{disentanglement} implícito al poder separar las partes en un código del tipo
+\textit{overcomplete}, evitando la necesidad de usar múltiples arquitecturas.

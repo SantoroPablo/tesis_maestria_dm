@@ -1,0 +1,37 @@
+PAGENet
+=======
+
+Part Aware Generative Network, PAGENet, es una arquitectura que consiste en varias redes que actuan sobre
+las partes de una serie de objetos tridimensionales voxelizados y segmentados semánticamente en sus partes,
+con otra red encargada del ensamblado de las partes para obtener la reconstrucción de los datos de entrada.
+Con este tipo de arquitectura se pretende solucionar un problema recurrente en la reconstrucción de figuras
+en zonas de alta varianza en los datos, correspondiente en general a detalles más finos, sin incrementar la
+resolución.
+
+Arquitectura
+============
+En primer lugar están los generadores por parte, que consisten en redes VAE-GAN, cuya misión es reconstruir
+las partes semánticas del objeto. Usando los objetos reconstruidos de estas redes se encuentra otra red
+encargada del ensamblado de las partes generadas previamente, trabajando directamente en el ensamblado
+de las partes generadas previamente. Como las redes individuales en ningun momento tratan el tamaño
+adecuado para el ensamblado de las partes a la hora de lograr la reconstrucción de las partes, de ello
+se tiene que encargar la arquitectura de ensamblado, por lo que ésta es la que se encarga de todas las 
+transformaciones necesarias para ensamblar el objeto. Esta red de ensamblaje tiene cinco capas
+convolucionales con tamaños de kernel de \(4x4x4\) junto con las habituales capas de normalización por
+lotes y capas ReLU. Por lo tanto, el output no es directamente un objeto ensamblado, sino una serie de
+transformaciones a aplicar a las partes recibidas por las redes generadoras para finalmente obtener el
+objeto reconstruido. Asimismo, para dar variedad a las formas producidas, se puede dejar constante en 1 el
+valor de las transformaciones de una de las partes, llamada \textit{ancla}, para que las otras si sean
+transformadas y se amolden al ancla. Esto hace que en cada momento haya tantas posibles reconstrucciones
+de un mismo objeto como partes haya, ya que cualquiera de ellas puede elegirse como ancla.
+
+Funciones de pérdida
+====================
+Para la reconstrucción de las partes se usa una función de pérdida que incluye las siguientes componentes:
+* Pérdida de reconstrucción.
+* Divergencia Kullback-Leibler.
+* Pérdida de reflexión: para las partes simétricas, se computa esta pérdida si la reconstrucción no lo es.
+* Pérdida adversarial: Correspondiente al discriminador de la red GAN. El VAE actúa como generador.
+
+
+

@@ -1,0 +1,5 @@
+La red LOGAN \cite{Yin2019} permite emparejar dominios que previamente no lo estan, permitiendo convertir un objeto de un dominio a otro luego de finalizado el entrenamiento. Esto permite una transformación entre espacios de formas de manera no supervisada.
+
+La arquitectura consta de dos partes: un autoencoder usado para reconstruccion de las figuras y una red GAN que actúa como traductor entre un dominio y otro. En el encoder se hacen varias extracciones de códigos latentes de las capas intermedias que luego se concatenan en un sólo código latente del tipo "overcomplete", que es el que se alimenta al decoder para la reconstrucción de la figura.
+
+La red traductora opera sobre el espacio de códigos latentes en un dominio común de las figuras en lugar de operar sobre las figuras en sí. La tarea de esta red consiste tanto en relacionar figuras de dos dominios distintos con características similares como en preservar las características de una misma figura en la traducción. Esto último se agrega en la función de pérdida como una componente de preservación de características.

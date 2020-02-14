@@ -1,0 +1,32 @@
+Shape unicode
+=============
+
+Este tipo de red tiene como objectivo poder realizar una traducción del tipo de datos
+usado para representar objetos tridimensionales. Entre las representaciones con las
+que puede tratar se encuentran vóxeles, nubes de puntos y proyecciones
+bidimensionales de objetos tridimensionales.
+
+Arquitectura
+============
+La arquitectura utilizada es una ligera modificación de tres arquitecturas VAE. En
+lugar de estar en paralelo, cada código generado por el encoder de cada una se
+alimenta a cada encoder de las otras, para favorecer que los códigos para las tres
+representaciones tiendan a igualarse para poder utilizarse indistintamente en
+cualquier decoder y obtener cualquier representación de los datos. Esto significa
+que, en entrenamiento, cada código de cada encoder es alimentado a cada decoder.
+Por lo tanto, en el caso de tres representaciones, implica nueve pares
+encoder-decoder. Por último, para poder realizar una separación entre grupos de
+tipos de datos, se agrega una capa totalmente conectada para clasificación,
+compartida entre las otras 3 redes.
+
+Función de pérdida
+==================
+Como existen tres representaciones, cada encoder tiene una función de pérdida en
+la representación que maneja y a su vez tiene funciones de pérdida en las otras
+dos representaciones. A éstas últimas dos se las denomina \textit{pérdidas de 
+traducción}.
+En segundo lugar, con la función de pérdida de \textit{embedding} se penalizan las
+diferencias entre los embedding generados por los decoder.
+Por último, se computa el error de clasificación de la capa totalmente conectada
+compartida entre las otras 3 redes.
+
