@@ -1,0 +1,26 @@
+TBN - Transformable Bottleneck Networks
+=======================================
+
+TBN \cite{Olszewski2019} es una red que infiere objetos tridimensionales a partir de vistas bidimensionales y
+genera nuevas vistas del mismo, realizando transformaciones sobre el espacio tridimensional aprendidas por la
+red al incluir las transformaciones junto a los datos de entrenamiento.
+
+Datos de entrenamiento
+======================
+Los datos de entrenamiento consisten en imágenes a transformar en tridimensionales así como también las
+transformaciones a aplicar a los objetos. De esta manera, se espera que la red aprenda tanto a transformar
+un objeto bidimensional a tridimensional así como también a aplicar las transformaciones sobre los mismos
+para generar nuevas vistas bidimensionales (NVS, o \textit{Novel View Synthesis}, por sus siglas en inglés).
+
+Arquitectura
+============
+La arquitectura consiste en un \textit{autoencoder} modificado, el cual conserva las partes \textit{encoder-
+decoder} e incluye un \textit{bottleneck}, o cuello de botella, entre ambos, en donde ocurren las manipulaciones
+espaciales de los objetos tridimensionales. Estas transformaciones pueden ser variadas, pudiendo interactuar
+con un objeto de diversas formas.
+Otra de las diferencias con un \textit{autoencoder} tradicional reside en que el \textit{encoder} realiza la
+transformación de un espacio bidimensional a uno tridimensional. Tanto el \textit{encoder} como el
+\textit{decoder} son redes convolucionales pero contienen un paso intermedio de \textit{reshaping} para
+el cambio de dimensiones. Por ende, el \textit{bottleneck} contiene un objeto tridimensional, no un código latente.
+Además, el usuario provee la función de transformación para este objeto en el \textit{bottleneck}.  
+

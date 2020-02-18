@@ -1,0 +1,37 @@
+\cite{Park2019} propone una red que representa los objetos tridimensionales
+en un campo volumétrico cuyo valor en cualquier punto representa la 
+distancia de ese punto a la superficie del objeto, y su signo representa si
+el punto se encuenta en el interior o en el exterior del objeto. De esta
+forma, la superficie se encuentra en el valor cero devuelto por la función
+aprendida por la red, llamada \textit{SDF} (\textit{SignedDistance
+Function} por sus siglas en inglés).
+
+Datos usados
+============
+
+Los datos usados para entrenar el modelo consisten en un muestreo de puntos
+cercanos a la superficie de los objetos. Luego, a cada punto se le aplica
+la función SDF, obteniendo un valor para cada punto, siendo la combinación
+de los puntos y su valor de SDF los datos de entrenamiento.
+
+Arquitectura
+===========
+La arquitectura entrenada consiste en un \textit{autodecoder}: solo el
+código latente y el decoder de un tradicional autoencoder es usado. Para
+cada uno de los elementos del dataset de entrenamiento, se genera un
+código latente aleatorio que luego es modificado por el algoritmo de
+backpropagation del modelo. La forma de operar es similar a un autoencoder,
+el codigo latente representa una codificación de SDF que reconstruyen cada
+objeto y el decoder debe lograr la reconstrucción de los mismos infiriendo
+la función SDF que lo logra.
+
+Resultados
+==========
+La arquitectura propuesta logra captar detalles finos de los objetos y
+puede reconstruirlos con una alta resolucion. No obstante, en objetos
+muy detallados puede fallar en reconstruirlos. Otra de los logros de la
+red es poder disminuir el tamaño en memoria de los objetos y del modelo
+debido a la elección de representación de los mismos elegida. Esto hace
+posible un entrenamiento más rápido y menores necesidades computacionales
+que otras representaciones para una misma representación.
+
