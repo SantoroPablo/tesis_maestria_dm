@@ -1,0 +1,4 @@
+nro_modelo|iou_medio_testing
+18|0.5066
+19|0.3554
+20|0.0852
