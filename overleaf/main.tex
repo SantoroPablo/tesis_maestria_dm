@@ -230,7 +230,6 @@ los códigos latentes
 % Revisar aca si ponemos el caso de MNIST que probé, sería lo más sensato
 % En el paper de SDF hacen eso, ponen MNIST para mostrar por que usan un auto-decoder.
 
-
 \subsection{Arquitecturas de Deep Learning en 3D}
 
 En \cite{Gao2019} las redes aprenden un conjunto de voxeles deformables
@@ -309,38 +308,63 @@ comprimida de los datos de entrenamiento.
 % abstracciones entre las distintas SDF de cada figura de los datos de
 % entrenamiento.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%% Apartado nuevo Olszewski2019 %%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\textit{Transformable Bottleneck Networks} (TBN) \cite{Olszewski2019} es una red
-que infiere objetos tridimensionales a partir de vistas bidimensionales y genera
-nuevas vistas del mismo, realizando transformaciones sobre el espacio
-tridimensional aprendidas por la red al ser incluidas junto a los datos de
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Apartado nuevo debatiendo las ideas de TBN de Olszewski2019 %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+TBN \cite{Olszewski2019} es una red que infiere objetos tridimensionales
+a partir de vistas bidimensionales y genera nuevas vistas del mismo,
+realizando transformaciones sobre el espacio tridimensional aprendidas
+por la red al incluir las transformaciones junto a los datos de
 entrenamiento.
 
-Los datos de entrenamiento consisten en imágenes a transformar en tridimensionales así como también las
-transformaciones a aplicar a los objetos. De esta manera, se espera que la red aprenda tanto a transformar
-un objeto bidimensional a tridimensional así como también a aplicar las transformaciones sobre los mismos
-para generar nuevas vistas bidimensionales (NVS, o \textit{Novel View Synthesis}, por sus siglas en inglés).
+Los datos de entrenamiento consisten en imágenes a transformar en
+tridimensionales así como también las transformaciones a aplicar a
+los objetos. De esta manera, se espera que la red aprenda tanto a
+transformar un objeto bidimensional a tridimensional así como también a
+aplicar las transformaciones sobre los mismos para generar nuevas vistas
+bidimensionales (NVS, o \textit{Novel View Synthesis}, por sus siglas en
+inglés).
 
-la arquitectura de las tbn consiste en un \textit{autoencoder} modificado, el cual conserva las partes
-\textit{encoder-decoder} e incluye un \textit{bottleneck}, o cuello de botella, entre ambos, en donde ocurren
-las manipulaciones espaciales de los objetos tridimensionales. estas transformaciones pueden ser variadas,
-pudiendo interactuar con un objeto de diversas formas.
-otra de las diferencias con un \textit{autoencoder} tradicional reside en que el \textit{encoder} realiza la
-transformación de un espacio bidimensional a uno tridimensional. tanto el \textit{encoder} como el
-\textit{decoder} son redes convolucionales pero contienen un paso intermedio de \textit{reshaping} para
-el cambio de dimensiones. por ende, el \textit{bottleneck} contiene un objeto tridimensional, no un código latente.
-además, el usuario provee la función de transformación para este objeto en el \textit{bottleneck}.  
-\cite{olszewski2019} reporta que la red produce un \textit{disentangling} entre la forma y la posición espacial
-del objeto tridimensional en el bottleneck, dotando de flexibilidad para hacer transformaciones sobre el objeto
-en el \textit{bottleneck}.
+La arquitectura consiste en un \textit{autoencoder} modificado, el cual
+conserva las partes \textit{encoder-decoder} e incluye un
+\textit{bottleneck}, o cuello de botella, entre ambos, en donde ocurren
+las manipulaciones espaciales de los objetos tridimensionales. Estas
+transformaciones pueden ser variadas, pudiendo interactuar con un objeto
+de diversas formas. Otra de las diferencias con un \textit{autoencoder}
+tradicional reside en que el \textit{encoder} realiza la transformación
+de un espacio bidimensional a uno tridimensional. Tanto el \textit{encoder}
+como el \textit{decoder} son redes convolucionales pero contienen un paso
+intermedio de \textit{reshaping} para el cambio de dimensiones. Por ende,
+el \textit{bottleneck} contiene un objeto tridimensional, no un código
+latente. Además, el usuario provee la función de transformación para este
+objeto en el \textit{bottleneck}. 
+La funcion de pérdida utilizada para entrenar la red tiene varias
+componentes:
+\begin{itemize}
+    \item Pérdida de reconstucción \(L_{1}\).
+    \item Pérdida perceptual, definida como la pérdida en el espacio de
+        características de la red VGG-19 \cite{simonyan2014deep}
+    \item Pérdida de similitud %TODO: Revisar las citas que tiene respecto
+                               % de este tipo de pérdida, para poder anotar
+                               % la matemática de la misma.
+    \item Pérdida adversarial, utilizando el discriminador de una red GAN.
+    \item Pérdida de segmentación: para cada una de las imágenes, tanto el
+        \textit{input} como el \textit{output} tienen una máscara binaria
+        (ceros y unos) que identifican los píxeles donde se encuentra el
+        objeto con 1 y el resto con 0. De esta forma, se puede medir el
+        resultado de la segmentación lograda por el decoder.
+\end{itemize}
 
-% Agregar figura de la arquitectura de la TBN de Olszewski et al.
+\begin{figure}[h]
+\includegraphics[height=4cm]{images/Olszewski2019_arq.png}
+\centering
+\caption{Arquitectura de TBN \cite{Wu2016} para NVS usando un \textit{bottleneck} tridimensional}
+\label{TBN_arq}
+\end{figure}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%% Apartado viejo Olszewski2019 %%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Apartado viejo debatiendo las ideas de TBN de Olszewski2019 %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Hay nuevas arquitecturas \cite{Olszewski2019} que
 % también han logrado generar vistas nuevas de objetos tridimensionales
 % (Novel View Synthesis, o NVS por sus siglas en inglés). En el caso de
@@ -381,8 +405,6 @@ pérdida si la reconstrucción no lo es.
 * Pérdida adversarial: Correspondiente al discriminador de la red GAN.
 El VAE actúa como generador.
 
-% Agregar diagrama de la arquitectura usada por Li2019
-
 Usando los objetos reconstruidos de estas redes se encuentra otra red
 encargada del ensamblado de las partes generadas previamente,
 trabajando directamente en el ensamblado de los objetos.
@@ -421,8 +443,57 @@ como ancla.
 % formado por los códigos de las partes individuales, lo que alimenta una
 % última red que es la encargada del ensamble de las partes de la figura.
 
-\cite{Yin2019} propone una arquitectura llamada LOGAN, por sus siglas en inglés de \textit{Latent Overcomplete Generative Adversarial Network} con el propósito de lograr traducciones de figuras entre dos dominios distintos pero con características similares, como pueden ser sillas y mesas, de una forma no supervisada, es decir, no hay ninguna segmentación previa, ninguna correspondencia entre puntos realizada entre figuras de los dos dominios ni ningún tipo de emparejamiento de los dos dominios previo al entrenamiento, sino a ser encontrado por la red luego de terminado el entrenamiento.
-La arquitectura está compuesta por dos partes, un autoencoder y dos traductores que van en direcciones opuestas: uno traduce del dominio \textit{x} al \textit{y} y el otro, en el sentido opuesto. Estos traductores tienen forma de red GAN. Tanto los autoencoders como los traductores son entrenados de forma independiente entre sí pero siguiendo un orden: primero se entrena el autoencoder y luego, los traductores. La particularidad en el entrenamiento del autoencoder consiste en que los vectores latentes se forman a partir de las capas PointNet++ \cite{Qi2017} del encoder, de forma tal que forman un vector con la concatenación de las partes (tipo \textit{overcomplete}) y otros vectores con las partes individuales rellenos de ceros para completar el tamaño de vector necesario para alimentar el decoder. A su vez, se alimenta el decoder con todos estos vectores, de forma tal que la red puede aprender distintas características de forma independiente, lo que lleva a un \textit{disentangling} implícito en las partes que conforman el vector \textit{overcomplete}. Como función de pérdida se usa EMD (Earth Mover's Distance, por sus siglas en inglés). Luego se entrenan por separado las redes traductoras, cuya función de pérdida es algo más compleja para permitir la correcta traducción entre los dominios. La primera componente es la función de pérdida adversarial de la WGAN \cite{pmlr-v70-arjovsky17a} a la que se suma una componente de preservación de características, que mide el error de traducción entre una figura de un dominio \textit{x} a su mismo dominio, teniendo que replicar la misma figura. Esto permite que la red aprenda a preservar las caracteristicas importantes de la figura y a que la traducción al dominio \textit{y} preserve los aspectos más dominantes de la figura, haciendo sólo algunos cambios en la traducción. Por último, lo que detallan como una componente menor sólo para prevenir que un grupo de figuras del dominio \textit{y} abarquen todas las traducciones desde el dominio \textit{x}, agregan una última componente llamada \textit{de ciclo}, la cual comprende la pérdida de volver a traducir una figura desde \textit{y} hacia \textit{x} que previamente había sido traducida en el sentido contrario, teniendo que volverse a reconstruir la figura original, forzando a que haya más relaciones unívocas entre dominios.  
+\begin{figure}[h]
+\includegraphics[height=4cm]{images/Li2019_arq.png}
+\centering
+\caption{Arquitectura de PAGENet \cite{Li2019} para la generación de objetos tridimensionales ensamblando sus partes}
+\label{PAGENet_arq}
+\end{figure}
+
+\cite{Yin2019} propone una arquitectura llamada LOGAN, por sus siglas en inglés de
+\textit{Latent Overcomplete Generative Adversarial Network} con el propósito de
+lograr traducciones de figuras entre dos dominios distintos pero con características
+similares, como pueden ser sillas y mesas, de una forma no supervisada, es decir,
+no hay ninguna segmentación previa, ninguna correspondencia entre puntos realizada
+entre figuras de los dos dominios ni ningún tipo de emparejamiento de los dos
+dominios previo al entrenamiento, sino a ser encontrado por la red luego de
+terminado el entrenamiento.
+La arquitectura está compuesta por dos partes, un autoencoder y dos traductores que
+van en direcciones opuestas: uno traduce del dominio \textit{x} al \textit{y} y el
+otro, en el sentido opuesto. Estos traductores tienen forma de red GAN. Tanto los
+autoencoders como los traductores son entrenados de forma independiente entre sí
+pero siguiendo un orden: primero se entrena el autoencoder y luego, los traductores.
+La particularidad en el entrenamiento del autoencoder consiste en que los vectores
+latentes se forman a partir de las capas PointNet++ \cite{Qi2017} del encoder, de
+forma tal que forman un vector con la concatenación de las partes (tipo
+\textit{overcomplete}) y otros vectores con las partes individuales rellenos de
+ceros para completar el tamaño de vector necesario para alimentar el decoder. A su
+vez, se alimenta el decoder con todos estos vectores, de forma tal que la red puede
+aprender distintas características de forma independiente, lo que lleva a un
+\textit{disentangling} implícito en las partes que conforman el vector
+\textit{overcomplete}. Como función de pérdida se usa EMD (Earth Mover's Distance,
+por sus siglas en inglés). Luego se entrenan por separado las redes traductoras,
+cuya función de pérdida es algo más compleja para permitir la correcta traducción
+entre los dominios. La primera componente es la función de pérdida adversarial de
+la WGAN \cite{pmlr-v70-arjovsky17a} a la que se suma una componente de preservación
+de características, que mide el error de traducción entre una figura de un dominio
+\textit{x} a su mismo dominio, teniendo que replicar la misma figura. Esto permite
+que la red aprenda a preservar las caracteristicas importantes de la figura y a que
+la traducción al dominio \textit{y} preserve los aspectos más dominantes de la
+figura, haciendo sólo algunos cambios en la traducción. Por último, lo que detallan
+como una componente menor sólo para prevenir que un grupo de figuras del dominio
+\textit{y} abarquen todas las traducciones desde el dominio \textit{x}, agregan una
+última componente llamada \textit{de ciclo}, la cual comprende la pérdida de volver
+a traducir una figura desde \textit{y} hacia \textit{x} que previamente había sido
+traducida en el sentido contrario, teniendo que volverse a reconstruir la figura
+original, forzando a que haya más relaciones unívocas entre dominios.  
+
+\begin{figure}[h]
+\includegraphics[height=4cm]{images/Yin2019_arq_autoencoder.png}
+\centering
+\caption{Arquitectura de autoencoder en LOGAN \cite{Yin2019} para la generación de objetos tridimensionales a partir de códigos latentes \textit{overcomplete}}
+\label{LOGAN_arq_ae}
+\end{figure}
 
 \bibliographystyle{plain}
 \addcontentsline{toc}{section}{\refname}

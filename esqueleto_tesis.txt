@@ -1,0 +1,37 @@
+Layout de la tesis que hay que tener
+====================================
+Abstract-resumen
+================
+Introduccion (2 páginas)
+============
+    - Presentar la idea (1 párrafo)
+    - Procesamiento 3D
+    - Deep Learning 3D
+    - Aplicaciones
+Estado del arte (10 páginas)
+===============
+    - Deep learning 3D: Convoluciones, pooling, etc., todas las operaciones que se hace con esto.
+    - Generación 3D: incluir acá los papers. Tener en cuenta el objetivo que tiene cada uno, que en muchos
+    casos difiere del mío pero del que puedo mostrar los últimos avances y tomar ideas.
+    Dataset (1/2 páginas)
+=======
+Método (2/3 páginas)
+======
+    - Arquitectura
+    - Función objetivo: acá se puede hablar, contar de qué se tratan y citar las funciones de pérdida
+    a usar.
+    - Experimental setup: citar a Colab, volcar los parámetros, métricas, detalles del setup de
+    entrenamiento, métodos competidores. Sobre estos últimos Emmanuel me dijo que no me preocupe tanto,
+    que no reimplemente ninguno de estos sólo para comparar, que eso se hace a nivel de paper, no de
+    tesis. Entonces, lo que tengo que hacer es sólo citar posibles competidores que se acerquen a lo que
+    hago, como la arquitectura PAGENet.
+Evaluación (15 páginas)
+==========
+    - Cuantitativa (gráficos con las métricas)
+    - Cualitativa (imágenes de reconstrucciones vs. ground truth)
+Discusión (1 página)
+=========
+    - Limitaciones y próximas mejoras en la línea de investigación abierta.
+Conclusiones (1 página)
+============
+

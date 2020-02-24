@@ -1,28 +1,54 @@
-TBN - Transformable Bottleneck Networks
-=======================================
+\subsection{TBN - Transformable Bottleneck Networks}
 
-TBN \cite{Olszewski2019} es una red que infiere objetos tridimensionales a partir de vistas bidimensionales y
-genera nuevas vistas del mismo, realizando transformaciones sobre el espacio tridimensional aprendidas por la
-red al incluir las transformaciones junto a los datos de entrenamiento.
+TBN \cite{Olszewski2019} es una red que infiere objetos tridimensionales
+a partir de vistas bidimensionales y genera nuevas vistas del mismo,
+realizando transformaciones sobre el espacio tridimensional aprendidas
+por la red al incluir las transformaciones junto a los datos de
+entrenamiento.
 
-Datos de entrenamiento
-======================
-Los datos de entrenamiento consisten en imágenes a transformar en tridimensionales así como también las
-transformaciones a aplicar a los objetos. De esta manera, se espera que la red aprenda tanto a transformar
-un objeto bidimensional a tridimensional así como también a aplicar las transformaciones sobre los mismos
-para generar nuevas vistas bidimensionales (NVS, o \textit{Novel View Synthesis}, por sus siglas en inglés).
+\subsubsection{Datos de entrenamiento}
+Los datos de entrenamiento consisten en imágenes a transformar en
+tridimensionales así como también las transformaciones a aplicar a
+los objetos. De esta manera, se espera que la red aprenda tanto a
+transformar un objeto bidimensional a tridimensional así como también a
+aplicar las transformaciones sobre los mismos para generar nuevas vistas
+bidimensionales (NVS, o \textit{Novel View Synthesis}, por sus siglas en
+inglés).
 
-Arquitectura
-============
-la arquitectura de las tbn consiste en un \textit{autoencoder} modificado, el cual conserva las partes
-\textit{encoder-decoder} e incluye un \textit{bottleneck}, o cuello de botella, entre ambos, en donde ocurren
-las manipulaciones espaciales de los objetos tridimensionales. estas transformaciones pueden ser variadas,
-pudiendo interactuar con un objeto de diversas formas.
-otra de las diferencias con un \textit{autoencoder} tradicional reside en que el \textit{encoder} realiza la
-transformación de un espacio bidimensional a uno tridimensional. tanto el \textit{encoder} como el
-\textit{decoder} son redes convolucionales pero contienen un paso intermedio de \textit{reshaping} para
-el cambio de dimensiones. por ende, el \textit{bottleneck} contiene un objeto tridimensional, no un código latente.
-además, el usuario provee la función de transformación para este objeto en el \textit{bottleneck}.  
-\cite{olszewski2019} reporta que la red produce un \textit{disentangling} entre la forma y la posición espacial
-del objeto tridimensional en el bottleneck, dotando de flexibilidad para hacer transformaciones sobre el objeto
-en el \textit{bottleneck}.
+\subsubsection{Arquitectura}
+La arquitectura consiste en un \textit{autoencoder} modificado, el cual
+conserva las partes \textit{encoder-decoder} e incluye un
+\textit{bottleneck}, o cuello de botella, entre ambos, en donde ocurren
+las manipulaciones espaciales de los objetos tridimensionales. Estas
+transformaciones pueden ser variadas, pudiendo interactuar con un objeto
+de diversas formas. Otra de las diferencias con un \textit{autoencoder}
+tradicional reside en que el \textit{encoder} realiza la transformación
+de un espacio bidimensional a uno tridimensional. Tanto el \textit{encoder}
+como el \textit{decoder} son redes convolucionales pero contienen un paso
+intermedio de \textit{reshaping} para el cambio de dimensiones. Por ende,
+el \textit{bottleneck} contiene un objeto tridimensional, no un código
+latente. Además, el usuario provee la función de transformación para este
+objeto en el \textit{bottleneck}. 
+La funcion de pérdida utilizada para entrenar la red tiene varias
+componentes:
+\begin{itemize}
+    \item Pérdida de reconstucción \(L_{1}\).
+    \item Pérdida perceptual, definida como la pérdida en el espacio de
+        características de la red VGG-19 \cite{simonyan2014deep}
+    \item Pérdida de similitud %TODO: Revisar las citas que tiene respecto
+                               % de este tipo de pérdida, para poder anotar
+                               % la matemática de la misma.
+    \item Pérdida adversarial, utilizando el discriminador de una red GAN.
+    \item Pérdida de segmentación: para cada una de las imágenes, tanto el
+        \textit{input} como el \textit{output} tienen una máscara binaria
+        (ceros y unos) que identifican los píxeles donde se encuentra el
+        objeto con 1 y el resto con 0. De esta forma, se puede medir el
+        resultado de la segmentación lograda por el decoder.
+\end{itemize}
+
+% TODO: agregar una imagen de la arquitectura y agregar a la tesis.
+
+% En la página 5, columna derecha, en la parte que habla de armar un split
+% entre training y testing, da 3 referencias a papers por ello. Ver si me
+% sirve para citarlo yo también a la hora de hablar de training y testing.
+
