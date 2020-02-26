@@ -1,0 +1,16 @@
+SDM-NET
+=======
+
+\cite{Gao2019} propone usar la gran capacidad de representación de objetos
+de las mallas para poder realizar reconstrucciones, proponiendo SDM-NET
+(\textit{Structured Deformable Meshes}, por sus siglas en inglés). La idea
+fundamental detrás de que logra la arquitectura que proponen consiste en
+que todas las figuras son homeomórficas respecto de una caja, que puede
+luego deformarse para capturar los detalles más finos. Asimismo, permite
+hacer esto por partes para luego ensamblarlas en objeto semánticamente
+coherente.
+
+Arquitectura
+============
+\cite{Gao2019} propone una arquitectura en dos partes. La pa
+

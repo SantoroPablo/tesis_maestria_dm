@@ -38,6 +38,11 @@
 
 \section{Introducción}
 
+El presente trabajo tiene por objetivo proponer una arquitectura de red
+neuronal profunda novedosa para la reconstrucción de objetos
+tridimensionales usando una variante de \textit{autoencoders} y códigos
+latentes del tipo \textit{overcomplete}.
+
 Dentro de la ciencia de datos actual, una de las áreas que más se
 están desarrollando en los últimos tiempos es la relacionada a las
 arquitecturas de redes neuronales y, en particular, a aquellas relacionadas
@@ -73,7 +78,17 @@ las figuras de entrenamiento. Esto permite poder explorar el espacio completo de
 figuras de entrenamiento, con la posibilidad de encontrar figuras relacionadas a las
 originales pero con variaciones en los detalles, los cuales podrían ser útiles a los
 fines de entender y explorar el espacio de figuras con las que se trabajó en los
-datos originales.
+datos originales. Asimismo, los VAE y el uso de una distribución multivariada
+permiten que la red aprenda a independizar parámetros constitutivos de los objetos,
+lo que se suele llamar \textit{disentangling} en la literatura. El mayor beneficio
+logrado por ello es, en una etapa de uso de la red para generar nuevos objetos,
+manipular una serie de parámetros independientes y alterar sólo un grupo aislado
+de características sin afectar otras, permitiendo obtener un continuo de
+transformaciones aprendidas por la red.
+
+% TODO: Explicar las secciones de forma somera.
+
+\section{Estado del arte}
 
 \subsection{Convoluciones, pooling, normalización por lotes}
 
@@ -204,11 +219,13 @@ y los de salida son escasas, al contrario que en las tradicionales
 redes en las cuales una neurona de una capa oculta intermedia está
 completamente conectada con todas las neuronas de la capa anterior.
 
+Las convoluciones forman la base de la enorme mayoría las arquitecturas
+de redes neuronales que tratamos en este trabajo. Pueden contener
+capas completamente conectadas, como es el caso de 
+
+
 % Hasta acá, un resumen con otras palabras del libro de Goodfellow
 \clearpage
-
-
-\section{Estado del arte}
 
 \subsection{Variational autoencoders}
 Los VAE (\textit{Variational AutoEncoders}, por sus siglas en inglés)
