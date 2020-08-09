@@ -1,16 +1,19 @@
-\documentclass[spanish]{article}
+\documentclass[12pt, spanish]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage[backend=biber,style=numeric]{biblatex}
 \usepackage{float}
 \usepackage{indentfirst}
 \usepackage[a4paper, margin=1 in]{geometry}
 \usepackage[spanish]{babel}
+\usepackage{nameref}
 
-% Paquetes para usar graficos desde mathcha.io
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Paquetes para usar graficos desde mathcha.io %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usepackage{tikz}
 \usepackage{mathdots}
 \usepackage{yhmath}
@@ -21,74 +24,411 @@
 \usepackage{multirow}
 \usepackage{gensymb}
 \usepackage{tabularx}
+\usepackage{hyperref}
 \usepackage{booktabs}
 \usetikzlibrary{fadings}
+\usetikzlibrary{calc}
 \usetikzlibrary{patterns}
+\usetikzlibrary{positioning}
 \usetikzlibrary{shadows.blur}
+\usetikzlibrary{shapes.geometric}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Corrigiendo babel para uso con Tikz  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usetikzlibrary{babel,arrows,decorations,snakes,backgrounds}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  TikZ para graficar diagramas de redes neuronales  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\tikzstyle{startstop} = [rectangle, rounded corners,
+    minimum width=1cm, minimum height=1cm,
+    text centered, draw=black, fill=white,
+    text width=3cm]
+\tikzstyle{io} = [rectangle, rounded corners,
+    minimum width=1cm, minimum height=1cm,
+    text centered, draw=black, fill=white,
+    text width=3cm]
+\tikzstyle{arrow} = [->,>=stealth]
+
+\addbibresource{tesis_dm.bib}
 \graphicspath{ {./images/} }
 \tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
 
+% Cambiando el interlineado
+\linespread{1.3}
+
 \begin{document}
 
-\input{plan_tesis_title_page.tex}
+\input{tesis_title_page.tex}
 \input{abstract_es.tex}
 \input{abstract_en.tex}
 
 \section{Introducción}
 
-El presente trabajo tiene por objetivo proponer una arquitectura de red
-neuronal profunda novedosa para la reconstrucción de objetos
-tridimensionales usando una variante de \textit{autoencoders} y códigos
-latentes del tipo \textit{overcomplete}.
-
 Dentro de la ciencia de datos actual, una de las áreas que más se
-están desarrollando en los últimos tiempos es la relacionada a las
+han desarrollado en los últimos tiempos es la relacionada a las
 arquitecturas de redes neuronales y, en particular, a aquellas relacionadas
 con redes profundas, o ``Deep Learning'' en inglés.
 
-Teóricamente, cualquier red neuronal de tres capas (entrada, oculta
+Teóricamente, una arquitectura de tres capas (entrada, oculta
 y de salida) puede aproximar cualquier función, pero aún se desconoce
 el entrenamiento apropiado para poder alcanzar esa meta teórica.
 Por ende, se recurrió a agregar capas no redundantes que permiten
-alcanzar mejores resultados a los que se estaban logrando a través
-de las redes neuronales de tres capas, dando lugar a las llamadas
-redes profundas.
+alcanzar mejores resultados respecto a los lograndos a través
+de las redes neuronales de tres capas, dando lugar a las redes
+profundas.
 
-Las redes profundas incidieron de manera decisiva en el procesamiento
-de imágenes en dos y tres dimensiones. Se han desarrollado y se continúan
-desarrollando redes con cada vez mejor precisión a la hora de reconocer
-y reconstruir figuras de las más diversas. Para la reconstrucción
-de modelos tridimensionales, las arquitecturas más comunes son los ``autoencoders'',
-las llamadas ``Generative Adversarial Networks'' (GAN) y los ``variational
-autoencoders'' (VAE). Recientemente se han comenzaron a desarrollar
-arquitecturas que, además de poder reconstruir los ejemplos de entrenamiento,
-puede generar nuevas imágenes, tomando nuevas muestras de datos de
-un espacio continuo multivariado \cite{Karras2018}.
-
-Un campo que está comenzando a tomar impulso recientemente es el de
-procesamiento de datos en tres dimensiones usando redes generativas
-con arquitecturas como GAN y VAE. Estas redes permiten, además de
-reconstruir figuras con las que se entrenen, ajustar una distribución
-multivariada (ajustada a tener una distribución normal estándar multivariada)
+Recientemente, las redes profundas comenzaron a incidir de manera decisiva en el procesamiento
+de objetos en dos y tres dimensiones. Se continúan desarrollando arquitecturas 
+con cada vez mejor precisión a la hora de reconocer
+y reconstruir diversos objetos. Para la reconstrucción
+de modelos tridimensionales, las arquitecturas básicas más comunes son los ``autoencoders'',
+las llamadas ``Generative Adversarial Networks'' (GAN) y los ``Variational
+AutoEncoders'' (VAE). Las arquitecturas VAE y GAN,
+además de poder reconstruir los ejemplos de entrenamiento,
+puede generar nuevas imágenes, tomando muestras de datos de
+un espacio continuo multivariado \cite{Karras2018}. Además de
+reconstruir las figuras de entrenamiento, estas arquitecturas permiten ajustar una distribución
+multivariada (generalmente, una distribución normal estándar multivariada)
 a los fines de tener un espacio de muestreo continuo a través del cual poder generar
-nuevas figuras y poder hacer una interpolación continua en el espacio continuo de
-las figuras de entrenamiento. Esto permite poder explorar el espacio completo de las
-figuras de entrenamiento, con la posibilidad de encontrar figuras relacionadas a las
-originales pero con variaciones en los detalles, los cuales podrían ser útiles a los
-fines de entender y explorar el espacio de figuras con las que se trabajó en los
-datos originales. Asimismo, los VAE y el uso de una distribución multivariada
-permiten que la red aprenda a independizar parámetros constitutivos de los objetos,
-lo que se suele llamar \textit{disentangling} en la literatura. El mayor beneficio
-logrado por ello es, en una etapa de uso de la red para generar nuevos objetos,
-manipular una serie de parámetros independientes y alterar sólo un grupo aislado
-de características sin afectar otras, permitiendo obtener un continuo de
-transformaciones aprendidas por la red.
+nuevas figuras y poder hacer una interpolación continua en el espacio de
+las figuras de entrenamiento. Esto permite poder explorar el espacio completo de
+los objetos (a diferencia de los discontinuos espacios generados por los 
+autoencoders tradicionales), con la posibilidad de encontrar variaciones en ciertos detalles
+de los mismos, los cuales podrían ser útiles a los fines de entender y explorar el espacio
+de figuras con las que se trabajó en los datos originales.
 
-% TODO: Explicar las secciones de forma somera.
+En este sentido, en este trabajo se muestra una variante de la arquitectura VAE, muy
+aproximada a la arquitectura original pero con una variación en la forma de entrenamiento,
+tomando la estrategia de códigos latentes del tipo \textit{overcomplete} \cite{Yin2019} para poder lograr no
+sólo la reconstrucción de un dataset de figuras tridimensionales previamente segmentadas
+en sus partes, sino también poder aislar las partes dentro del espacio de códigos latentes.
+De esta forma, se logran aislar distintos detalles en los objetos en segmentos de los códigos
+latentes.
+
+\clearpage
 
 \section{Estado del arte}
+\label{sec:estado_del_arte}
+
+\subsection{Redes neuronales} % y limitaciones y que viene a solucionar el Deep Learning
+Las redes neuronales son un conjunto de arquitecturas diversas basadas todas ellas
+en neuronas artificiales, las cuales representan una unidad de procesamiento de
+información que recibe estímulos de entrada, los cuales se combinan de forma
+lineal y a cuyo resultado se le aplica una función de activación, que da una respuesta
+a la salida de la neurona. Existen muchas funciones de activación, como ser binarias
+(valores 0 ó 1), lineales, acotadas entre dos valores cualesquiera, etc. Estas funciones
+son las de más común uso en la práctica pero puede elegirse cualquier función
+como activación de una neurona. La función de activación, no obstante, varía con el problema
+que debe resolver la neurona: por ejemplo, si se tratan problemas de clasificación
+se utilizan funciones de activación acotadas, normalmente entre $[0;1]$ o $[-1;1]$,
+mientras que para los problemas de regresión se usan funciones cuyo dominio son
+todos los números reales.
+Asimismo, el resultado de la función de activación pueden ser valores continuos
+o discretos, también funciones definidas por partes.
+Los valores de activación de una neurona dependen sólo de los datos de entrada
+y de los parámetros aprendidos $w$.
+
+La representación tradicional de una neurona implica valores de entrada $x_i$,
+cada uno de los cuales se multiplica por un peso $w_i$, sumándose luego cada uno de
+los resultados de estos productos y se les aplica una función de activación ``g'',
+que dan como resultado las salidas $\hat{y}$ \cite{isasi2004redes}.
+
+\begin{figure}[H]
+\centering
+\tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%uncomment if require: \path (0,402); %set diagram left start at 0, and has height of 402
+
+%Shape: Ellipse [id:dp2720015218944005] 
+\draw   (110.38,315.73) .. controls (110.38,305.09) and (118.38,296.46) .. (128.27,296.46) .. controls (138.15,296.46) and (146.16,305.09) .. (146.16,315.73) .. controls (146.16,326.37) and (138.15,335) .. (128.27,335) .. controls (118.38,335) and (110.38,326.37) .. (110.38,315.73) -- cycle ;
+%Shape: Ellipse [id:dp3837077404561182] 
+\draw   (153.31,315.73) .. controls (153.31,305.09) and (161.32,296.46) .. (171.2,296.46) .. controls (181.08,296.46) and (189.09,305.09) .. (189.09,315.73) .. controls (189.09,326.37) and (181.08,335) .. (171.2,335) .. controls (161.32,335) and (153.31,326.37) .. (153.31,315.73) -- cycle ;
+%Shape: Ellipse [id:dp01981874579517595] 
+\draw   (196.25,315.73) .. controls (196.25,305.09) and (204.26,296.46) .. (214.14,296.46) .. controls (224.02,296.46) and (232.03,305.09) .. (232.03,315.73) .. controls (232.03,326.37) and (224.02,335) .. (214.14,335) .. controls (204.26,335) and (196.25,326.37) .. (196.25,315.73) -- cycle ;
+%Shape: Ellipse [id:dp7236151148280978] 
+\draw   (239.19,315.73) .. controls (239.19,305.09) and (247.2,296.46) .. (257.08,296.46) .. controls (266.96,296.46) and (274.97,305.09) .. (274.97,315.73) .. controls (274.97,326.37) and (266.96,335) .. (257.08,335) .. controls (247.2,335) and (239.19,326.37) .. (239.19,315.73) -- cycle ;
+%Shape: Ellipse [id:dp7479569288356038] 
+\draw   (24.5,200.12) .. controls (24.5,189.48) and (32.51,180.85) .. (42.39,180.85) .. controls (52.27,180.85) and (60.28,189.48) .. (60.28,200.12) .. controls (60.28,210.76) and (52.27,219.39) .. (42.39,219.39) .. controls (32.51,219.39) and (24.5,210.76) .. (24.5,200.12) -- cycle ;
+%Shape: Ellipse [id:dp9939083257886165] 
+\draw   (67.44,200.12) .. controls (67.44,189.48) and (75.45,180.85) .. (85.33,180.85) .. controls (95.21,180.85) and (103.22,189.48) .. (103.22,200.12) .. controls (103.22,210.76) and (95.21,219.39) .. (85.33,219.39) .. controls (75.45,219.39) and (67.44,210.76) .. (67.44,200.12) -- cycle ;
+%Shape: Ellipse [id:dp4073834611348608] 
+\draw   (289.28,200.12) .. controls (289.28,189.48) and (297.29,180.85) .. (307.17,180.85) .. controls (317.05,180.85) and (325.06,189.48) .. (325.06,200.12) .. controls (325.06,210.76) and (317.05,219.39) .. (307.17,219.39) .. controls (297.29,219.39) and (289.28,210.76) .. (289.28,200.12) -- cycle ;
+%Shape: Ellipse [id:dp22167190095519107] 
+\draw   (332.22,200.12) .. controls (332.22,189.48) and (340.23,180.85) .. (350.11,180.85) .. controls (359.99,180.85) and (368,189.48) .. (368,200.12) .. controls (368,210.76) and (359.99,219.39) .. (350.11,219.39) .. controls (340.23,219.39) and (332.22,210.76) .. (332.22,200.12) -- cycle ;
+%Straight Lines [id:da15450774738183992] 
+\draw    (42.39,219.39) -- (128.27,296.46) ;
+%Straight Lines [id:da2829044989577385] 
+\draw    (42.39,219.39) -- (171.2,296.46) ;
+%Straight Lines [id:da8980563157039807] 
+\draw    (42.39,219.39) -- (214.14,296.46) ;
+%Straight Lines [id:da26277993551748025] 
+\draw    (42.39,219.39) -- (257.08,296.46) ;
+%Straight Lines [id:da5528352589902739] 
+\draw    (85.33,219.39) -- (128.27,296.46) ;
+%Straight Lines [id:da10791289044527552] 
+\draw    (85.33,219.39) -- (171.2,296.46) ;
+%Straight Lines [id:da9310393684628768] 
+\draw    (85.33,219.39) -- (214.14,296.46) ;
+%Straight Lines [id:da48581876734991836] 
+\draw    (85.33,219.39) -- (257.08,296.46) ;
+%Straight Lines [id:da011444021643488345] 
+\draw    (307.17,219.39) -- (128.27,296.46) ;
+%Straight Lines [id:da4811843544333507] 
+\draw    (307.17,219.39) -- (171.2,296.46) ;
+%Straight Lines [id:da521913029486315] 
+\draw    (307.17,219.39) -- (214.14,296.46) ;
+%Straight Lines [id:da7939068226488193] 
+\draw    (307.17,219.39) -- (257.08,296.46) ;
+%Straight Lines [id:da15329924550198482] 
+\draw    (350.11,219.39) -- (128.27,296.46) ;
+%Straight Lines [id:da19526208362823816] 
+\draw    (344.03,221.7) -- (171.2,296.46) ;
+%Straight Lines [id:da9795575332823692] 
+\draw    (350.11,219.39) -- (214.14,296.46) ;
+%Straight Lines [id:da043010971324199065] 
+\draw    (350.11,219.39) -- (257.08,296.46) ;
+%Shape: Ellipse [id:dp6288164009507364] 
+\draw   (278.43,84.21) .. controls (278.46,94.85) and (270.48,103.5) .. (260.6,103.54) .. controls (250.72,103.57) and (242.68,94.97) .. (242.65,84.33) .. controls (242.61,73.69) and (250.6,65.04) .. (260.48,65) .. controls (270.36,64.97) and (278.39,73.57) .. (278.43,84.21) -- cycle ;
+%Shape: Ellipse [id:dp9685549887103893] 
+\draw   (235.49,84.36) .. controls (235.52,95) and (227.54,103.65) .. (217.66,103.69) .. controls (207.78,103.72) and (199.74,95.12) .. (199.71,84.48) .. controls (199.68,73.84) and (207.66,65.19) .. (217.54,65.15) .. controls (227.42,65.12) and (235.46,73.72) .. (235.49,84.36) -- cycle ;
+%Shape: Ellipse [id:dp5999333628500731] 
+\draw   (192.55,84.51) .. controls (192.59,95.15) and (184.6,103.81) .. (174.72,103.84) .. controls (164.84,103.88) and (156.81,95.28) .. (156.77,84.64) .. controls (156.74,74) and (164.72,65.34) .. (174.6,65.31) .. controls (184.48,65.27) and (192.52,73.87) .. (192.55,84.51) -- cycle ;
+%Shape: Ellipse [id:dp4986242138618515] 
+\draw   (149.61,84.67) .. controls (149.65,95.31) and (141.67,103.96) .. (131.79,104) .. controls (121.91,104.03) and (113.87,95.43) .. (113.84,84.79) .. controls (113.8,74.15) and (121.78,65.5) .. (131.66,65.46) .. controls (141.54,65.43) and (149.58,74.03) .. (149.61,84.67) -- cycle ;
+%Straight Lines [id:da964227445843808] 
+\draw    (346.71,180.3) -- (260.6,103.54) ;
+%Straight Lines [id:da9317281730322] 
+\draw    (346.71,180.3) -- (217.66,103.69) ;
+%Straight Lines [id:da8781372263812648] 
+\draw    (346.71,180.3) -- (174.72,103.84) ;
+%Straight Lines [id:da7984922350871231] 
+\draw    (346.71,180.3) -- (131.78,104) ;
+%Straight Lines [id:da9933018474502304] 
+\draw    (303.77,180.46) -- (260.6,103.54) ;
+%Straight Lines [id:da8069788202243142] 
+\draw    (303.77,180.46) -- (217.66,103.69) ;
+%Straight Lines [id:da07714153983529748] 
+\draw    (303.77,180.46) -- (174.72,103.84) ;
+%Straight Lines [id:da7233505714762876] 
+\draw    (303.77,180.46) -- (131.78,104) ;
+%Straight Lines [id:da7186337846401032] 
+\draw    (81.93,181.25) -- (260.6,103.54) ;
+%Straight Lines [id:da3437340674773921] 
+\draw    (81.93,181.25) -- (217.66,103.69) ;
+%Straight Lines [id:da31076367922801573] 
+\draw    (81.93,181.25) -- (174.72,103.84) ;
+%Straight Lines [id:da08571577701097399] 
+\draw    (81.93,181.25) -- (131.78,104) ;
+%Straight Lines [id:da1918176912687859] 
+\draw    (38.99,181.4) -- (260.6,103.54) ;
+%Straight Lines [id:da13026881483313502] 
+\draw    (45.07,179.07) -- (217.66,103.69) ;
+%Straight Lines [id:da14565851774081717] 
+\draw    (38.99,181.4) -- (174.72,103.84) ;
+%Straight Lines [id:da17398502333326027] 
+\draw    (38.99,181.4) -- (131.78,104) ;
+%Straight Lines [id:da35143564995955634] 
+\draw    (128.27,335) -- (128.5,369) ;
+%Straight Lines [id:da2874884733697052] 
+\draw    (214.14,335) -- (214.38,369) ;
+%Straight Lines [id:da5497244110106112] 
+\draw    (171.2,335) -- (171.44,369) ;
+%Straight Lines [id:da6991413964424229] 
+\draw    (257.08,335) -- (257.31,369) ;
+%Straight Lines [id:da6414673286784804] 
+\draw    (131.43,31.46) -- (131.66,65.46) ;
+%Straight Lines [id:da8676044351416776] 
+\draw    (217.31,31.15) -- (217.54,65.15) ;
+%Straight Lines [id:da8848276849172192] 
+\draw    (174.37,31.31) -- (174.6,65.31) ;
+%Straight Lines [id:da5213836105071521] 
+\draw    (260.24,31) -- (260.48,65) ;
+
+% Text Node
+\draw (160,373) node [anchor=north west][inner sep=0.75pt]   [align=left] {Entradas};
+% Text Node
+\draw (171,8) node [anchor=north west][inner sep=0.75pt]   [align=left] {Salidas};
+% Text Node
+\draw (139,173) node [anchor=north west][inner sep=0.75pt]  [font=\huge] [align=left] {...};
+% Text Node
+\draw (224,174) node [anchor=north west][inner sep=0.75pt]  [font=\huge] [align=left] {...};
+
+\end{tikzpicture}
+\caption{Esquema de una red neuronal ordenada por capas. De abajo hacia arriba:
+capa de entrada, oculta y de salida. Los círculos representan las neuronas, las
+líneas representan las conexiones entre las capas. Este caso representado es de
+una red completamente conectada, en donde una neurona se conecta con todas las
+de la capa siguiente. El flujo de información es desde abajo hacia arriba.}
+\label{red_fully_connected}
+\end{figure}
+
+Las redes neuronales por ende, son modelos de neuronas interconectadas, como
+se puede observar en el modelo representado en la figura \ref{red_fully_connected}.
+La arquitectura utilizada comúnmente consta de distintas capas interconectadas
+entre sí: una capa de entrada, desde la cual se toman los datos y cuya salida
+es tomada por una o más capas ocultas. Finalmente, se encuentra una capa de
+salida, tras la cual se obtiene un valor de salida de la red. Todas las capas
+reciben una entrada de cada una de las neuronas de la capa anterior, y todas
+las variables de los datos procesados se reciben en la capa de entrada.
+Este tipo de arquitecturas es el más común para problemas de clasificación o de
+regresión, y generalmente constan de una sola capa oculta.
+La cantidad de neuronas en cada capa es un \textit{hiperparámetro} del modelo, que
+se debe fijar antes de entrenar el modelo.
+% TODO: revisar los comentarios de Emmaniel sobre la siguiente sección que separé
+%       entre comentarios: no suma mucho y posiblemente se pueda resumir en un par
+%       de oraciones
+Ciertas convenciones se toman, sin embargo, para las capas de entrada y salida:
+\begin{itemize}
+    \item Para la capa de entrada, tantas neuronas como variables tengan los
+        datos que se procesen.
+    \item Para la capa de salida:
+    \begin{itemize}
+        \item Si es una red de clasificación, una neurona para cada uno de los
+        resultados posibles en la red. Por ejemplo, para una clasificación binaria
+        (1 ó 0), se utilizarían dos neuronas para cada uno de los estados posibles.
+        \item En el caso de una regresión se utiliza una neurona con activación lineal
+        (que da como salida un valor continuo real).
+    \end{itemize}
+\end{itemize}
+Dadas estas convenciones,
+% TODO: FIN DE SECCIÓN
+El hiperparámetro fundamental a resolver es la cantidad de neuronas necesarias en
+la capa oculta. La forma de determinarlo es, generalmente, de forma empírica, de
+acuerdo al error resultante del modelado de
+acuerdo a la arquitectura determinada. Por otro lado, no se usan funciones lineales
+en las capas ocultas, pues se puede determinar analíticamente que usar este tipo de
+funciones para las capas ocultas es trivial, ya que se podrían reemplazar por una
+sola capa que reúna las características de este conjunto \cite{isasi2004redes}. 
+Esta arquitectura, de forma teórica, se considera un aproximador universal de
+cualquier función matemática posible \cite{Hornik_1989}. Si bien no existe un
+método universal para entrenar este tipo de redes para aproximar cualquier función,
+sí se ha conseguido incrementar el desempeño de estos modelos desarrollando mejores 
+funciones de activación que posibiliten incrementar la cantidad de capas ocultas.
+En general, esto ha resultado en redes más precisas, y cuyo entrenamiento en general
+no recae en el problema de gradientes que se aproximan a cero (propio de las funciones continuas acotadas,
+cuya derivada está acotada en el intervalo $[0;1]$) \cite{Bengio_1994}, con
+muchas más capas y cantidad de neuronas.
+Este tipo de redes, que concatenan un número considerable de capas ocultas
+son las que conforman el conjunto de técnicas que denominamos ``Deep Learning''
+(Aprendizaje Profundo). Una de las funciones de activación más comunes en este
+campo es la función ReL (\textit{Rectified Linear}, por sus siglas en inglés),
+que toma el valor 0 para los valores de entrada negativos y el mismo valor de
+entrada si el valor es positivo o cero. Funciona como si fuera una compuerta
+que no permite valores negativos o cero a la entrada y propaga valores positivos
+de la misma a la siguiente capa. Las neuronas que llevan como función de activación
+esta función se llaman ``ReLU''. Esta función tiene las
+propiedades interesantes de no acotar la activación producida por los datos de
+entrada en la neurona y tiene una derivada constante igual a 1, por lo que no cae en el
+problema de gradientes cada vez más chicos, lo que permite el concatenado profundo
+de capas y que todas ellas puedan adaptarse más rápido a los errores, lo que
+se traduce también en un entrenamiento más rápido del modelo. Para obtener
+resultados acotados se siguen usando las tradicionales funciones sigmoideas y de
+tangente hiperbólica, con propiedades interesantes en cuanto a las derivadas de
+estas funciones, que facilitaron la programación de redes neuronales, a la vez
+que tienen la propiedad matemática de acotar los valores de activación y ser
+funciones continuas y derivables en todo su dominio.
+
+\subsubsection{Entrenamiento de las redes neuronales}
+El entrenamiento de una red neuronal es iterativo y consiste en la optimización
+de una función de pérdida. De acuerdo al problema tratado, esta función de
+pérdida toma distintas formas. Para el caso de la reconstrucción de objetos,
+como es el caso de los autoencoders y los VAE, la función de pérdida toma la
+siguiente forma:
+
+
+\[
+J(\theta)=E_{(x)\sim p_{data}}[L(f(x;\theta),x)]
+\]
+
+Donde $x$ representa los datos de entrenamiento, $L$ es la función
+de pérdida, $f(x;\theta)$ es la salida de la red neuronal y $\hat{p}_{data}$
+es la distribución de los datos. La red, en tiempo de entrenamiento,
+tiene como modelo de optimización el minimizar $J(\theta)$ aproximado
+mediante un estadístico insesgado. Entonces, esta función de pérdida
+empírica toma la forma:
+
+\[
+J^{*}(\theta)=\frac{1}{m}\sum_{i=1}^{m}L(f(x^{(i)};\theta),x^{(i)})
+\]
+
+Donde $m$ es el número de ejemplos de entrenamiento, $x$ representando
+el conjunto de datos de entrenamiento.
+
+La red ``aprende'' de los errores cometidos en la reconstrucción de objetos
+(valor de la salida de la red, $f(x;\theta)$). Para aprender, la red adapta
+los valores de los pesos $w_i$ de acuerdo al signo y la magnitud del error
+de predicción.  La forma de actualizar todos los $w_i$ de la red en las
+distintas capas que la componen es mediante el algoritmo de propagación hacia
+atrás (más conocido por su locución inglesa, ``backpropagation''). Este
+algoritmo tiene en cuenta el gradiente del error a la hora de propagar el error
+hacia todas las neuronas de la red. Asimismo, para evitar cambios de magnitud
+considerable se ajusta cada uno de los cambios en una proporción de igual
+magnitud para toda la red y prefijada de antemano (por lo que constituye otro
+hiperparámetro para la red): la tasa de aprendizaje, o ``learning rate''. Esta
+tasa permite un aprendizaje más lento e incremental e impide que la red produzca
+ajustes que le impidan encontrar valores mínimos de la función de error. Ahora
+bien, como probablemente nunca se llegue a eliminar completamente el error de
+entrenamiento en un problema no trivial, la red buscará constantemente eliminar
+el mismo, por lo que el entrenamiento nunca finalizaría. A este problema se lo
+puede encarar de dos formas distintas: prefijando una cantidad de iteraciones a
+realizar en tiempo de entrenamiento o un límite de error aceptable tras el cual,
+una vez alcanzados valores debajo de este umbral, se detiene el entrenamiento.
+Generalmente, se utilizan las dos condiciones y se finaliza el entrenamiento
+cuando se alcance alguna de las dos condiciones primero.
+
+Desafortunadamente, debido a que, a priori, la superficie multidimensional
+descrita por la función de error $L(f(x,\theta),x)$ es desconocida, varía con el problema
+considerado y la forma de entrenamiento es iterativa, no se puede
+garantizar que el mínimo que se encuentra tras el modelado sea el mínimo
+absoluto de la función de error. Pueden probarse distintos valores de ``learning
+rate'' para evitar que el modelo caiga en mínimos locales. También se suele
+utilizar un coeficiente de ``inercia'', que sirve para actualizar las $w_i$
+dependiendo de valores anteriores para dichos pesos. Aún así, el modelado
+depende de todos estos hiperparámetros y se pueden realizar varias rondas de
+entrenamiento para poder encontrar la configuración deseada de forma empírica.
+
+% TODO: NUEVA SECCIÓN ESCRITA PARA EL ENTRENAMIENTO DE LAS REDES NEURONALES PROFUNDAS
+
+El entrenamiento de las redes neuronales profundas es muy costoso
+en tiempo computacional. Para evitar este problema y reducir tiempos,
+se han diseñado técnicas de optimización para dicho entrenamiento.
+Para este caso, se desea conocer un conjunto de parámetros $\theta$
+de una red neuronal profunda de manera que minimice una función de
+costos $J(\theta)$ relacionada con el desempeño de la red neuronal
+en entrenamiento. De esta forma, para nuestro caso, en donde buscamos
+minimizar la diferencia entre los objetos generados y los objetos
+utilizados en entrenamiento, la función a minimizar queda expresada:
+
+\[
+J(\theta)=E_{(x)\sim p_{data}}[L(f(x;\theta),x)]
+\]
+
+Donde $x$ representa los datos de entrenamiento, $L$ es la función
+de pérdida, $f(x;\theta)$ es la salida de la red neuronal y $\hat{p}_{data}$
+es la distribución de los datos. La red, en tiempo de entrenamiento,
+tiene como modelo de optimización el minimizar $J(\theta)$ aproximado
+mediante un estadístico insesgado. Entonces, esta función de pérdida
+empírica toma la forma:
+
+\[
+J^{*}(\theta)=\frac{1}{m}\sum_{i=1}^{m}L(f(x^{(i)};\theta),x^{(i)})
+\]
+
+Donde $m$ es el número de ejemplos de entrenamiento, $x$ representando
+el conjunto de datos de entrenamiento.
+
+Ahora bien, la capacidad de adaptación que tienen las redes neuronales
+profundas hacen que sean propensas a caer en un sobreajuste (ya que poseen
+una cantidad de parámetros tal que podrían memorizar directamente los datos
+de entrenamiento). Varias de las técnicas de optimización actuales corrigen
+este problema para evitar el sobreajuste y, por ende, obtener un mayor grado
+de generalización.
+
+% TODO: FIN DE LA SECCIÓN
 
 \subsection{Convoluciones, pooling, normalización por lotes}
 
@@ -116,7 +456,17 @@ bidimensional con pesos adaptables por la red. Por ende, en el caso de una image
 
 \[S(i,j)=(I \circledast K)(i,j)=\sum_{m}^{n} I(m,n)K(i-m,j-n)\]
 
-Por ejemplo, al aplicar la convolución a una matriz de entrada bidimensional:
+Una particularidad de las capas convolucionales, que reduce muchísimo la
+complejidad computacional del entrenamiento de una red profunda, son las conexiones
+escasas que tienen las neuronas, asociadas al kernel convolucional, a diferencia de
+las redes neuronales tradicionales en las que todas las neuronas se encuentran
+conectadas con todas las de la capa siguiente. Esta reducción en el nivel de
+conexiones permite, además, un aprendizaje local y una reducción en los grados de
+libertad del modelo estadístio, lo que le ha permitido tener un mejor nivel de
+generalización respecto a redes con capas completamente conectadas.
+
+A continuación se destaca un ejemplo de aplicar la operación de convolución a una
+matriz de entrada bidimensional:
 
 \begin{figure}[H]
 \centering
@@ -213,56 +563,224 @@ ky\ \ +\ lz
 \label{convolucion}
 \end{figure}
 
-Cuando el kernel es mas chico que una imagen, como se observa en la
-figura \ref{convolucion}, las conexiones entre los datos de entrada
-y los de salida son escasas, al contrario que en las tradicionales
-redes en las cuales una neurona de una capa oculta intermedia está
-completamente conectada con todas las neuronas de la capa anterior.
-
-Las convoluciones forman la base de la enorme mayoría las arquitecturas
-de redes neuronales que tratamos en este trabajo. Pueden contener
-capas completamente conectadas, como es el caso de 
-
+A la salida de una capa convolucional generalmente hay una capa de neuronas
+ReLU detectoras, tras la cual puede habitualmente encontrarse una capa de
+pooling, que consiste en tomar operaciones estándar a los resultados de los
+kernels. Por ejemplo, de los resultados obtenidos por la convolución, se
+pueden tomar ciertos estadísticos como el máximo o el promedio. El efecto
+de esta capa es permitir una cierta invarianza a transformaciones en el
+objeto de entrada, sobre todo a los desplazamientos. Es decir, en ciertos
+modelos es preferible detectar ciertos patrones, como bordes, en cualquier
+parte de la figura y no solo en algunos lugares. En otros modelos, con el
+debido preprocesamiento de datos, puede no desearse este efecto y sí captar
+características locales. No obstante, las operaciones de pooling suelen ser
+bastante comunes en diversas arquitecturas.
+Estas tres capas, convolucional, ReLU y pooling, habitualmente son referidas
+como una sola capa convolucional, debido a lo común de este esquema.
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Batch Normalization  %
+%%%%%%%%%%%%%%%%%%%%%%%%%
+En el entrenamiento, ademas de poder utilizar estas capas, también se puede
+usar, para apovechar de mejor manera las capacidades de la GPU, la técnica
+conocida como normalización por lotes (textit{Batch Normalization} en inglés),
+que consiste en promediar los gradientes de varias pasadas de datos de
+entrenamiento en la red, en lugar de actualizar los pesos cada vez que se pasa
+un nuevo dato por la red. 
+%%%%%%%%%%%%%%%%%%%%%%%
+%  ADAM optimization  %
+%%%%%%%%%%%%%%%%%%%%%%%
+Asimismo, para mejorar el desempeño del modelos utilizamos la optimización
+ADAM \cite{arsalan2017synthesizing}.
 
 % Hasta acá, un resumen con otras palabras del libro de Goodfellow
+% TODO: Revisar si conviene agregar información sobre las sigueintes
+%       operaciones que se realizan cuando hablamos de deep learning,
+%       que van a servir para no tener que volver a explicar de nuevo
+%       cuando exponga mi arquitectura.
+%           * Argumentos para los efectos de distintos Beta para la
+%             KL Divergence
+%       También tener en cuenta de explicar lo que sea necesario sobre
+%       el batch size usado, no sólo para poder correr el modelo sino
+%       en términos de la performance también.
+
 \clearpage
 
-\subsection{Variational autoencoders}
-Los VAE (\textit{Variational AutoEncoders}, por sus siglas en inglés)
-son una variante de los autoencoders (AE) tradicionales, del cual
-modifican la forma en que la arquitectura representa los objetos en
-el espacio de códigos latentes.  
+\subsection{Arquitecturas de Deep Learning} % TODO: Nombraría a esta sección como 
+% "Arquitecturas de deep learning" y nombraría a los autoencoders, a los
+% GAN (incluyendo también la mejora, WGAN) y algunos ejemplos del éxito que
+% han logrado en dos dimensiones.
+Las arquitecturas de deep learning más modernas, que hacen uso del tipo
+de capas convolucionales vistas en el apartado anterior, son las siguientes:
+\begin{enumerate}
+    \item Autoencoders (AE) \cite[p.~517]{goodfellow2016deep} y
+        Variational autoencoders (VAE) \cite{Kingma2013}
+    \item Redes Generativas Antagónicas (GAN \textit{Generative
+        Adversarial Networks}, por sus siglas en inglés)
+\end{enumerate}
+Los AE son arquitecturas enfocadas en que su salida sea igual a su
+entrada. Consta de dos partes, un \textit{encoder}, que toma los datos
+de entrada y, en sucesivas capas del mismo, disminuye la dimensionalidad
+de los datos y los traduce en un \textit{código latente}: un vector que
+representa al dato de una forma más comprimida. La segundo parte, el
+\textit{decoder}, toma el código latente e intenta reconstruir los datos
+originales. La optimización se da midiendo el error de reconstrucción
+a la salida del autoencoder. Muchas aplicaciones de AE resultan en un
+código latente de una dimensionalidad menor a los datos, llamados
+\textit{undercomplete autoencoders}, lo que resulta en una compresión
+de los datos de entrada, generalmente con pérdida de información. 
+Los VAE son una variante de los autoencoders tradicionales, del cual
+modifican la forma en que la arquitectura representa los datos de 
+entrada en el espacio de códigos latentes.  En los AE, el \textit{encoder}
+representa los objetos en un punto en el espacio descrito por los códigos
+latentes, mientras que en los VAE estos se representan como una
+distribución \cite{Foster2019}. La distribución a priori de los datos de
+entrada es desconocida, pero generalmente se asume una distribución normal
+multivariada en el espacio de códigos latentes, utilizando la divergencia
+de Kullback-Leibler en la función de pérdida para que la distribución del
+espacio de los códigos latentes tienda a la distribución a priori.
+La ventaja de esto es que brinda continuidad, al no ser ya un punto
+discontinuo de otros objetos sino teniendo en cuenta que el espacio
+representa la probabilidad de ser un objeto u otro, permitiendo
+transiciones más suaves en el espacio de códigos latentes de un objeto a
+otro de una forma continua, mientras que en el espacio formado por los
+AE no se asume ninguna forma distribucional y el espacio es sumamente
+discontinuo, no permitiendo la interpolación entre códigos latentes como
+en los VAE. Debido a esta propiedad y al asumir una forma distribucional
+una vez entrenada la red se pueden hacer muestreos sobre el espacio de
+códigos latentes y generar nuevos objetos usando sólo el \textit{decoder},
+figuras que nunca se usaron para entrenar. La interpolación, además de
+ser generativa, permite observar características intermedias entre objetos
+que en los datos de entrenamiento no se observan.
+Por otra parte, lo que se espera de los AE y VAE, en lugar de una perfecta reconstrucción de
+los datos de entrada, es una aplicación del código latente que resulte
+útil, generalmente usado para encontrar variables latentes en los datos
+de entrenamiento, que resultan en una generalización de la red respecto
+a lo que observa durante el entrenamiento. Esto tiene sentido sobre todo
+en los AE que utilizan capas convolucionales, las cuales representan
+filtros aprendidos aplicados de forma sucesiva, los cuales encuentran
+variables latentes en las imágenes o figura. Por ejemplo, una arquitectura
+que sea entrenada con imágenes para reconocer rostros \cite{Higgins2017}
+puede encontrar variables latentes complejas como ser los distintos
+rasgos faciales. Al usar la red entrenada para generar nuevas imágenes,
+la manipulacióń de los códigos latentes encontrados sirve para alterar
+estas variables latentes encontradas por los autoencoders. No obstante,
+la manipulación de una de las componentes de un vector de código
+no conlleva, generalmente, la manipulación de una de las variables latentes
+encontrada por el autoencoder, sin afectar otras variables. Es decir,
+alterar una componente de un vector de código latente correspondiente
+a un objeto puede alterar completamente la salida por el \textit{decoder}.
+En esta situación, las variables latentes se encuentran \textit{enredadas}
+dentro de las componentes del código latente, con una alta correlación entre
+sí. Este efecto (llamado \textit{entangling} en inglés) dio lugar a varias
+estrategias para lograr \textit{desenredar} las componentes de los códigos
+latentes. Diversas estrategias se emplean tanto a nivel de modificaciones
+a la función de pérdida \cite{Higgins2017} como a distintas arquitecturas
+% TODO: Quizá estaría bueno tener en cuenta más papers en esta parte, en
+%       especial de armar objetos usando distintas arquitecturas y algunas
+%       que se puedan citar que alteran la función de pérdida, como
+%       FactorVAE y otros. Citar un paper que pueda entender,
+%       quizá FactorVAE no sea el mejor para esto.
+que tratan de separar el problema de la reconstrucción de un objeto entre
+las partes que lo componen.
 
-En los AE, el \textit{encoder} representa los objetos en un punto en
-el espacio, mientras que en los VAE estos se representan como una
-distribución \cite{Foster2019}. La ventaja de esto es que brinda
-continuidad, al no ser ya un punto discontinuo de otros objetos sino
-teniendo en cuenta que el espacio representa la probabilidad de ser un
-objeto u otro, permitiendo transiciones más suaves en el espacio de
-códigos latentes de un objeto a otro.
+% TODO: acá mismo relatar cómo es un GAN, por qué es generativo, por qué
+%       es difícil de entrenar (inestabilidad), qué viene a resolver
+%       \cite{pmlr-v70-arjovsky17a}
+%       En el libro de Goodfellow et al. "Deep Learning", en la página
+%       699 empieza el apartado de las redes GAN.
 
-Al terminar el entrenamiento de un \textit{autoencoder} no se obtienen
-buenos resultados al generar una muestra aleatoria en el espacio de
-los códigos latentes
-% Revisar aca si ponemos el caso de MNIST que probé, sería lo más sensato
-% En el paper de SDF hacen eso, ponen MNIST para mostrar por que usan un auto-decoder.
+Otra aproximación a la reconstrucción de objetos es la estrategia implementada
+por las redes GAN, ``Generative adversarial networks''. Este tipo de
+arquitectura está basada en un juego minimax % TODO: agregar referencia a los juegos minimax de algún lado que lo describa
+en el cual dos redes, una generadora de objetos encargada de generar objetos
+lo más similar posible a los objetos del conjunto de datos de entrenamiento
+y una red discriminadora encargada de distinguir entre objetos generados y
+reales, compiten entre sí. La red generadora debe generar objetos que la red
+no pueda distinguir de un objeto real (ergo, que clasifique al objeto como
+real cuando es generado; entonces se dice que la generadora \textit{engaña} a
+la red discriminadora) y la red discriminadora debe poder realizar la distinción.
+\cite{goodfellow2016deep}. En sucesivas iteraciones de entrenamiento ambas redes 
+refinan su capacidad de generar y discriminar, respectivamente. Lo esperado en
+la convergencia de este juego es que los objetos generados sean prácticamente
+indistinguibles de los reales, obteniendo una red generadora de objetos, y que
+el discriminador no pueda realizar la distinción, es decir, que la probabilidad
+de que un objeto sea real o generado sea de 0,5.
+No obstante, el entrenamiento de una red GAN es difícil, dado que es una red
+muy permeable a caer en mínimos locales, no ajustando lo suficiente como para
+obtener soluciones aceptables u óptimas debido a la naturaleza de los juegos
+minimax, en el cual se pueden llegar a mínimos locales para las dos redes poco
+óptimos, en donde una red puede adoptar una estrategia que le permita ganar el
+juego a costa de un desempeño mediocre. Este tipo de resultados se lo denomina
+``mode collapse'', en donde una de las redes aprende muy rápidamente a ganar
+siempre el juego antes de que se haya realizado algún aprendizaje por parte de
+la otra red.  Una propuesta para impedir esta inestabilidad en el entrenamiento
+de las redes GAN lo proponen \cite{pmlr-v70-arjovsky17a} en donde incluyen una componente
+de pérdida para el discriminador, un ``crítico'', el cual se basa en la distancia
+Wasserstein entre las distribuciones de probabilidad a priori y de los datos,
+componente que se adiciona a la función de pérdida del generador.Si el
+discriminador aprende más rápido y no proporciona información suficiente para
+actualizar los gradientes del generador, el crítico sí permite hacerlo y mejora
+sustancialmente el desempeño y la protección contra el ``mode collapse''.
+
+\subsection{Redes neuronales sobre objetos tridimensionales}
+Las redes convolucionales que tratan con datos tridimensionales se
+han utilizado para múltiples objetivos. \cite{savva2016large, savva2017large}
+comenta diversos trabajos de clasificación para buscadores de objetos
+tridimensionales sobre datos \textit{benchmark}, en estos trabajos,
+los datos de ShapeNet Core 55 \cite{chang2015shapenet}. Para este
+tipo de trabajos de clasificación se usaron redes neuronales que
+trabajaron sobre todo tipo de datos, mostrando la versatilidad de
+las redes neuronales sobre distintos tipos de representaciones de
+datos.
+Las distintas representaciones de datos conllevan distinto tipo
+de arquitecturas para poder trabajarlas. Las convoluciones
+anteriormente explicadas funcionan muy bien para datos con formato
+matricial, como ser objetos bidimiensionales como las imágenes,
+representadas por píxeles en capas de distintos canales,
+que comúnmente representan colores. El tipo de dato que mejor se
+adapta al uso de convoluciones en datos tridimensionales es el
+vóxel, el cual representa un homólogo al píxel bidimensional.
+También sirven de manera adecuada para el uso de datos de objetos
+representados como múltiples vistas bidimensionales \cite{arsalan2017synthesizing}.
+Otros tipos de datos que no se prestan directamente al uso de redes convolucionales
+son las mallas de polígonos \cite{Gao2019}, los puntos \cite{Qi2017, qi2017pointnet}
+y las representaciones implícitas \cite{Park2019}.
+
+% TODO: Leer y agregar cómo se comportan los datos de puntos en PointNet
 
 \subsection{Arquitecturas de Deep Learning en 3D}
 
-En \cite{Gao2019} las redes aprenden un conjunto de voxeles deformables
-para poder reconstruir figuras suaves, en lugar de reconstruir usando
-voxeles. Su arquitectura consta de dos VAE: La primera, que llaman
-``PartVAE'' se entrena un dataset con figuras etiquetadas por partes,
-por lo que aprende a reconstruir las partes por separado. La segunda,
-que llaman ``SP-VAE'' (por ``Structured Parts VAE'') aprende la
-estructura global del objeto, asegurando luego la coherencia de las
-partes ensambladas. En \cite{Muralikrishnan2019}, se utiliza la
-arquitectura VAE y la representación de objetos 3D en forma de voxeles,
-puntos y multiples vistas 2D para construir un mismo código latente
-que representa al mismo objeto, independientemente de su
-representación original y que permite reconstruir el mismo objeto en
-cualquiera de las tres formas de representación. Esta arquitectura se
-aplica tanto para tareas discriminativas como generativas.
+En \cite{Muralikrishnan2019}, se utiliza la arquitectura VAE y la
+representación de objetos tridimensionales en forma de voxeles,
+puntos y multiples vistas 2D para construir un mismo espacio de códigos
+latentes. Esto permite que, en \textit{testing}, se puede proveer a la
+arquitectura datos de cualquiera de los tres tipos mencionados,
+construyendo luego las otras dos representaciones del objeto. Los datos
+mencionados se obtienen a partir de mallas poligonales transformadas en
+representaciones de los tres tipos mencionados.
+\cite{Muralikrishnan2019} reporta que la arquitectura propuesta consigue
+aislar la representación del objeto respecto del objeto mismo, consiguiendo
+un código latente con mayor información del objeto en sí, independientemente
+del tipo de dato utilizado como representación.
+La arquitectura que proponen consiste en un VAE por cada una de las tres
+representaciones tratadas. Cada uno de los decoders reconstruye sólo una
+de las tres representaciones.
+Por otro lado, la función de pérdida es central para poder lograr la
+traducción entre representaciones distintas de un mismo objeto. En primer
+lugar, la función de pérdida favorece que el código latente formado por un
+mismo objeto sea el mismo independientemente de la representación de entrada
+de dicho objeto. Asimismo, no incluyen la divergencia de Kullback-Leibler
+en la función objetivo, debido a que limitaría la separación de grupos
+(produciéndose un solapamiento de los mismos en el espacio de los códigos
+latentes). Esto podría provocar discontinuidades en dicho espacio,
+dificultando la interpolación entre códigos para la generación de nuevos
+objetos no observados anteriormente por la red. Por otra parte, para el
+cómputo de la pérdida de reconstrucción se utiliza una función distinta
+para cada una de las tres distintas representaciones, adecuada a cada una
+de ellas. Por último, a la salida de los decoders se utiliza una capa
+completamente conectada para realizar tareas de discriminación de las
+categorías de objetos utilizadas para entrenar, resultando en la última
+componente utilizada para la función de pérdida.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%       
 %%%%% Apartado nuevo debatiendo las ideas de SDF de Park2019 %%%%%
@@ -360,7 +878,7 @@ componentes:
 \begin{itemize}
     \item Pérdida de reconstucción \(L_{1}\).
     \item Pérdida perceptual, definida como la pérdida en el espacio de
-        características de la red VGG-19 \cite{Simonyan2015}
+        características de la red VGG-19 \cite{simonyan2014vgg19}
     \item Pérdida de similitud %TODO: Revisar las citas que tiene respecto
                                % de este tipo de pérdida, para poder anotar
                                % la matemática de la misma.
@@ -467,6 +985,41 @@ como ancla.
 \label{PAGENet_arq}
 \end{figure}
 
+Existen otras formas de lograr representaciones tridimensionales sin 
+usar datos en forma de vóxeles. En \cite{Gao2019} las redes aprenden a
+deformar una malla de triángulos homeomórfica a una caja patrón para
+reconstruir las partes de una figura, capturando mayor grado de detalles
+y teniendo una continuidad superior en la superficie de los objetos que
+usando vóxeles o nubes. Luego, una segunda red toma las partes reconstruidas
+y las ensambla de una forma coherente, reconstruyendo el objeto final.
+La arquitectura propuesta, llamada SDM-NET
+(\textit{Structured Deformable Meshes}, por sus siglas en inglés),
+consta de dos VAE: la primera red, que llaman
+\textit{PartVAE} se entrena sobre un dataset con figuras etiquetadas
+por partes, por lo que aprende a reconstruir las partes por separado.
+La segunda, que llaman \textit{SP-VAE} (por ``Structured Parts VAE'')
+aprende la estructura global del objeto, asegurando luego la coherencia
+de las partes ensambladas.
+La principal limitación de \textit{SDM-Net} se da tanto en el tipo de datos.
+Al estar los objetos constituidos por mallas de triángulos, no se pueden
+aplicar convoluciones de la misma manera que al usar vóxeles para preservar
+los objetos. Asimismo, la representación de los objetos de entrenamiento
+no es con mallas directamente sino con \textit{mallas deformables}. Es decir,
+primero se debe establecer una caja patrón para las partes de los objetos con
+una cierta malla característica, sobre la cual se debe luego aplicar las
+deformaciones para obtener los objetos originales. Este tipo de datos
+preprocesados es el que alimentan la primera red, \textit{PartVAE}. Luego, para
+dotar de coherencia al código latente generado por \textit{PartVAE}, agregan
+más información al código latente sobre el objeto completo, ya que la información
+de las partes reconstruidas no garantiza de ninguna forma que haya una coherencia
+en el objeto final reconstruido por \textit{SP-VAE}. La información agregada al
+código latente incluye información de simetría entre partes, relaciones de soporte
+y de tamaño relativo entre las partes, entre otras. Esta información adicional
+no surge de la primera red, sino que surge del preprocesamiento de los códigos
+latentes generados por \textit{PartVAE} antes de entrar en la red \textit{SP-VAE}.
+Por todo esto se aumenta la complejidad del manejo de datos respecto a utilizar
+vóxeles para la representación de objetos.
+
 \cite{Yin2019} propone una arquitectura llamada LOGAN, por sus siglas en inglés de
 \textit{Latent Overcomplete Generative Adversarial Network} con el propósito de
 lograr traducciones de figuras entre dos dominios distintos pero con características
@@ -512,8 +1065,359 @@ original, forzando a que haya más relaciones unívocas entre dominios.
 \label{LOGAN_arq_ae}
 \end{figure}
 
-\bibliographystyle{plain}
+% TODO: Revisar aca si ponemos el caso de MNIST que probé, sería lo más sensato
+%       En el paper de SDF hacen eso, ponen MNIST para mostrar por que usan un auto-decoder.
+
+\clearpage
+
+\section{Método}%
+\label{sec:metodo}
+
+\subsection{Arquitectura}%
+\label{sub:arquitectura}
+La arquitectura que se utilizará como base es el Variational Autoencoder, para
+poder entrenar y generar luego nuevos objetos. Una variante que se realizará
+de esta arquitectura base está inspirada por la red ResNET \cite{He_2016}, la
+cual mejora el rendimiento de las redes muy profundas ajustando residuos de
+funciones que ajustan a los datos correctamente en lugar de solo apilar capas
+intermedias.
+
+La forma de entrenamiento
+
+\subsection{Experimental setup}%
+\label{sub:experimental_setup}
+
+Entorno de entrenamiento: Google Colaboratory, Notebooks de Jupyter (Lenguaje de Programación Python).
+\begin{itemize}
+    \item Device: docker Mobo: Google model: Google Compute Engine serial: Board-GoogleCloud-D1F1803758000E0AA854AF5459F55D7E
+    \item CPU: Intel(R) Xeon(R) CPU, 2.00 GHz, 2 núcleos (4 núcleos lógicos).
+    \item OS: Ubuntu 18.04.3 LTS
+    \item RAM: 12.72 GB
+    \item GPU: NVIDIA Corporation TU104GL [Tesla T4] (rev a1)
+\end{itemize}
+
+% inxi output
+% System:    Host: 8f66488bf791 Kernel: 4.19.104+ x86_64 bits: 64
+%            Console: tty 0 Distro: Ubuntu 18.04.3 LTS
+% Machine:   Device: docker Mobo: Google model: Google Compute Engine serial: Board-GoogleCloud-D1F1803758000E0AA854AF5459F55D7E
+%            BIOS: Google v: Google date: 01/01/2011
+% Battery    Using dmidecode: unknown error occurred
+% CPU:       Single core Intel Xeon (-MT-) arch: Skylake rev.3 cache: 39424 KB
+%            flags: (lm nx sse sse2 sse3 sse4_1 sse4_2 ssse3) bmips: 4000
+%            clock speeds: max: 2000 MHz 1: 2000 MHz 2: 2000 MHz
+% Graphics:  Card: NVIDIA Device 1eb8 bus-ID: 00:04.0
+%            Display Server: X.org 1.20.5 driver: nvidia
+%            tty size: 0x0 Advanced Data: N/A for root out of X
+% Network:   Card: Red Hat Virtio network device
+%            driver: virtio-pci port: c000 bus-ID: 00:05.0
+%            IF: N/A state: N/A speed: N/A duplex: N/A mac: N/A
+% Drives:    HDD Total Size: 85.9GB (40.7% used)
+%            ID-1: /dev/sda model: PersistentDisk size: 85.9GB
+% Partition: ID-1: / size: 69G used: 32G (49%) fs: overlay dev: N/A
+% RAID:      No RAID devices: /proc/mdstat, md_mod kernel module present
+% Sensors:   None detected - is lm-sensors installed and configured?
+% Info:      Processes: 9 Uptime: 16 min Memory: 743.2/13021.1MB
+%            Init: N/A Gcc sys: 7.5.0 Client: Shell (python3) inxi: 2.3.56 
+
+% lspci output
+% 00:00.0 Host bridge: Intel Corporation 440FX - 82441FX PMC [Natoma] (rev 02)
+% 00:01.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 03)
+% 00:01.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 03)
+% 00:03.0 Non-VGA unclassified device: Red Hat, Inc. Virtio SCSI
+% 00:04.0 3D controller: NVIDIA Corporation TU104GL [Tesla T4] (rev a1)
+% 00:05.0 Ethernet controller: Red Hat, Inc. Virtio network device
+% 00:06.0 Unclassified device [00ff]: Red Hat, Inc. Virtio RNG
+
+% Architecture:        x86_64
+% CPU op-mode(s):      32-bit, 64-bit
+% Byte Order:          Little Endian
+% CPU(s):              2
+% On-line CPU(s) list: 0,1
+% Thread(s) per core:  2
+% Core(s) per socket:  1
+% Socket(s):           1
+% NUMA node(s):        1
+% Vendor ID:           GenuineIntel
+% CPU family:          6
+% Model:               85
+% Model name:          Intel(R) Xeon(R) CPU @ 2.00GHz
+% Stepping:            3
+% CPU MHz:             2000.170
+% BogoMIPS:            4000.34
+% Hypervisor vendor:   KVM
+% Virtualization type: full
+% L1d cache:           32K
+% L1i cache:           32K
+% L2 cache:            1024K
+% L3 cache:            39424K
+% NUMA node0 CPU(s):   0,1
+% Flags:               fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single ssbd ibrs ibpb stibp fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm mpx avx512f avx512dq rdseed adx smap clflushopt clwb avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves arat md_clear arch_capabilities
+
+Como herramienta principal para la construcción de las redes en el entorno
+generado por Google Colab descrito anteriormente se utilizó la librería
+Pytorch \cite{PytorchNEURIPS2019_9015}.
+
+\subsection{Métodos competidores}%
+\label{sub:metodos_competidores}
+Como métodos que compiten con el modelo a presentar en este
+trabajo, se encuentran la red PAGENet \cite{Li2019} que ajusta una red
+VAE-GAN por cada una de las partes de los objetos de entrenamiento,
+usando luego una red ensambladora al final para la reconstruccion de
+los mismos. Otra de las redes que trata un dataset segmentado por partes
+basado en ShapeNet es \cite{G2L18}, basado en la arquitectura GAN mejorada
+por \cite{GulrajaniAADC17} en la cual, además de un discriminador global,
+utilizan también un discriminador por cada parte de los objetos. Asimismo,
+cuenta con un autoencoder que denominan \textit{Part Refiner}, con el que
+aumentan la resolución de las partes, en vóxeles de $32^3$ a $64^3$ y
+disminuyen los artefactos y partes desconectadas de las partes generadas,
+para un mejor ensamble en la reconstrucción del objeto final.
+
+\subsection{Función objetivo}%
+\label{sub:funcion_objetivo}
+
+% TODO: Adaptar a lo que quede como objetivo para la función final, sobre
+%       todo si se usan losses distintas a las comunes
+Las funciones objetivos de las distintas redes que presentaremos a
+continuación tienen distintas componentes que cumplen diversos fines para
+el entrenamiento de las redes. Estas componentes a utilizar son las
+siguientes:
+\begin{itemize}
+    \item Divergencia de Kullback-Leibler \cite{Joyce2011KullbackLeiblerD}: consiste
+        en la divergencia entre dos distribuciones. Se utilizará como una componente
+        de la función de pérdida para que a red tienda a ajustar la distribución de
+        cada componente de los vectores latentes a una distribución normal estándar,
+        tendiendo los vectores latentes a una distribución estándar normal
+        multivariada. De esta forma, se permite una continuidad en el espacio de los
+        objetos representados por los códigos latentes que con un autoencoder
+        tradicional es imposible lograrlo, permitiendo luego la generación de nuevos
+        objetos mediante el muestreo sobre el espacio generado.
+    \item \textit{Binary cross-entropy}: Entre la entrada y la salida. Sirve para
+        medir la calidad de la reconstrucción del objeto.
+    \item Pérdida L1 suave: la pérdida L1, conocida también error absoluto medio, es
+        igual al valor absoluto de la diferencia entre el valor predicho y el valor
+        de entrada. En el caso de la versión suave, sigue la siguiente función por
+        partes:
+        \[
+            z_i =
+            \begin{cases}
+                0.5(x_i - y_i)^2, &\quad\text{if } \lvert x_i - y_i \lvert < 1  \\
+                
+                \lvert x_i - y_i \lvert - 0.5, &\quad\text{de otra manera.} \\
+            \end{cases}
+        \]
+\end{itemize}
+Las distintas componentes de la función de pérdida también pueden ser pesadas por
+pesos $w_i$, los cuales serán variables para poder medir los distintos efectos de
+cada uno de los componentes de esta función.
+De esta forma la función de pérdida toma la forma:
+\[
+    \mathcal{L}_{total} = w_{KL} * \mathcal{D}_{KL} + w_{BCE} * \mathcal{L}_{BCE} + w_{L1} * \mathcal{L}_{L1}
+\]
+
+Éstas componentes, así como la pérdida total,se reportarán en las evaluaciones
+que se hagan de los modelos.
+También se usarán los siguientes hiperparámetros:
+
+\begin{itemize}
+    \item Tasa de aprendizaje = 0.001
+    \item Épocas: variable
+    \item Dimensiones de los códigos latentes: variable.
+    \item pesos de las componentes de la función de pérdida: variables.
+\end{itemize}
+
+Las capas que se utilizarán son capas convolucionales como fue descrito en
+"\textit{\nameref{sec:estado_del_arte}}", donde las capas convolucionales pueden
+entenderse en conjunto con las capas de normalización por lotes y las capas ReLU.
+También pueden utilizarse las capas tradicionales completamenete conectadas,
+como en las capas que generan los códigos latentes, normalmente con activaciones
+acotadas, como la función sigmoidea.
+Por último, se utilizará la técnica de \textit{dropout}, en la cual se suelen
+desactivar algunas neuronas en ciertas iteraciones para aumentar la capacidad de
+generalización de la red.
+
+\section{Evaluación}%
+\label{sec:evaluacion}
+Como primeros experimentos se probó la arquitectura VAE sobre datos estándares
+del área del procesamiento de imágenes usando redes profundas, en este
+primer caso, MNIST \cite{LeCun1998GradientbasedLA}. Este conjunto de datos se
+basa en el conjunto de datos NIST, que consta de unas 60.000 imágenes de
+números del 0 al 9 dibujados a mano, los cuales luego fueron modificados para
+evitar el preprocesamiento de estas imágenes, dando lugar a MNIST. \\
+Para los diagramas que se representarán de ahora en adelante, se tomará la
+siguiente codificación para la representación de las capas de la red:
+\begin{itemize}
+    \item C: Convolución.
+    \item AP: \textit{Average pooling}, ``Pooling'' promedio; toma el valor
+        promedio dentro del kernel definido.
+    \item R: ReLU, \textit{Rectified Linear Unit}.
+    \item DO: \textit{dropout}, desconexión de algunas de las neuronas para
+        mejorar la generalización de la red.
+    \item BN: \textit{Batch normalization}, normalización por lotes.
+    \item MP: \textit{Max pooling}, ``Pooling'' máximo, toma el valor máximo
+        dentro del kernel definido.
+    \item CT: Capa convolucional traspuesta, utilizada como operación inversa
+        a la convolución, utilizada en el decoder.
+    \item LC: Código latente, código formado por un encoder.
+    \item O: salida de la red.
+    \item FC: \textit{fully connected}, capa de neuronas completamente
+        conectadas.
+\end{itemize}
+Asimismo, para cada una de las capas se utilizará un color para identificarlas,
+como puede verse en la figura \ref{fig:ref_nn_diag}.
+
+\shorthandoff{<}
+\shorthandoff{>}
+\begin{figure}[htpb]
+\begin{center}
+    \begin{tikzpicture}[scale=1,node distance=3cm,outer sep=10pt]
+    \tikzstyle{conv}=[minimum width=0.2cm,minimum height=1cm,draw=white,fill=blue!20,inner sep=0]
+    \tikzstyle{convt}=[minimum width=0.2cm,minimum height=1cm,draw=white,fill=blue!75,inner sep=0]
+    \tikzstyle{bn}=[minimum width=0.2cm,minimum height=1cm,draw=white,fill=yellow!75,inner sep=0]
+    \tikzstyle{relu}=[minimum width=0.2cm,minimum height=1cm,draw=white,fill=teal!75,inner sep=0]
+    \tikzstyle{avg}=[minimum width=0.2cm,minimum height=1cm,draw=white,fill=green!75,inner sep=0]
+    \tikzstyle{fc}=[minimum width=0.2cm,minimum height=1cm,draw=white,fill=black!75,inner sep=0]
+    \tikzstyle{do}=[minimum width=0.2cm,minimum height=1cm,draw=white,fill=red!75,inner sep=0]
+    \tikzstyle{latent code}=[minimum width=0.5cm,minimum height=1.5cm,thick,draw=black!75,fill=white]
+    \tikzstyle{output}=[minimum width=0.5cm,minimum height=1.5cm,thick,draw=orange!75,fill=orange!30]
+    \node [conv]    (conv1)                       {};
+    \node [convt]   (convt1)    [right of=conv1]  {};
+    \node [bn]      (bn1)       [right of=convt1] {};
+    \node [relu]    (relu1)     [right of=bn1]    {};
+    \node [fc]      (fc1)       [right of=relu1]  {};
+    \node [avg]     (avg1)      [below of=conv1]  {};
+    \node [do]      (do1)       [right of=avg1]   {};
+    \node [latent code] (lc)    [right of=do1]    {};
+    \node [output]  (out1)      [right of=lc]     {};
+    \node at (conv1.south)  {C};
+    \node at (convt1.south) {CT};
+    \node at (bn1.south)    {BN};
+    \node at (relu1.south)  {R};
+    \node at (fc1.south)    {FC};
+    \node at (avg1.south)   {A};
+    \node at (do1.south)    {DO};
+    \node at (lc.south)     {LC};
+    \node at (out1.south)   {O};
+\end{tikzpicture}
+\end{center}
+\caption{Referencia diagrama de redes neuronales}%
+\label{fig:ref_nn_diag}
+\end{figure}
+\shorthandon{<}
+\shorthandon{>}
+
+En la figura \ref{fig:mnist_vae} mostramos cómo es la arquitectura que
+utilizaremos para hacer el primer modelo para generar figuras del
+conjunto de datos MNIST.
+
+\shorthandoff{<}
+\shorthandoff{>}
+\begin{figure}[htpb]
+\begin{center}
+\begin{tikzpicture}[scale=1,auto,node distance=0.2cm,font=\tiny]
+    \tikzstyle{invisible}=[minimum width=0mm,inner sep=0mm,outer sep=0mm]
+    \tikzstyle{conv}=[minimum width=0.2cm,minimum height=1cm,draw=white,fill=blue!20,inner sep=0]
+    \tikzstyle{convt}=[minimum width=0.2cm,minimum height=1cm,draw=white,fill=blue!75,inner sep=0]
+    \tikzstyle{bn}=[minimum width=0.2cm,minimum height=1cm,draw=white,fill=yellow!75,inner sep=0]
+    \tikzstyle{relu}=[minimum width=0.2cm,minimum height=1cm,draw=white,fill=teal!75,inner sep=0]
+    \tikzstyle{fc}=[minimum width=0.2cm,minimum height=1cm,draw=white,fill=black!75,inner sep=0]
+    \tikzstyle{avg}=[minimum width=0.2cm,minimum height=1cm,draw=white,fill=green!75,inner sep=0]
+    \tikzstyle{do}=[minimum width=0.2cm,minimum height=1cm,draw=white,fill=red!75,inner sep=0]
+    \tikzstyle{latent code}=[minimum width=0.5cm,minimum height=1.5cm,thick,draw=black!75,fill=white]
+    \tikzstyle{output}=[minimum width=0.5cm,minimum height=1.5cm,thick,draw=orange!75,fill=orange!30]
+    \tikzstyle{pre}=[<-,>=stealth',semithick]
+    \tikzstyle{post}=[->,>=stealth',semithick]
+    \node   [invisible] (input)                   {};
+    \node   [conv] (conv1) [right=1.5cm of input] {}
+        edge [pre] node [below] {$b \text{x} 1 \text{x} 28 \text{x} 28$} (input);
+    \node   [bn] (bn1)   [right of=conv1]      {};
+    %   edge [pre] (conv1);
+    \node   [relu] (relu1) [right of=bn1]      {};
+    %   edge [pre] (bn1);
+    \node   [do] (do1)   [right of=relu1]      {};
+    %   edge [pre] (relu1)
+    \node   [conv] (conv2) [right=1.5cm of do1]{}
+        edge [pre] node {$b \text{x} 16 \text{x} 10 \text{x} 10$} (do1);
+    \node   [bn] (bn2)   [right of=conv2]      {};
+    %   edge [pre] (conv2);
+    \node   [relu] (relu2) [right of=bn2]      {};
+    %   edge [pre] (bn2);
+    \node   [do] (do2)   [right of=relu2]      {};
+    %   edge [pre] (relu2);
+    \node   [conv] (conv3) [right=1.5cm of do2]{}
+        edge [pre] node {$b \text{x} 32 \text{x} 10 \text{x} 10$} (do2);
+    \node   [bn] (bn3)   [right of=conv3]      {};
+    %   edge [pre] (conv3);
+    \node   [relu] (relu3) [right of=bn3]      {};
+    %   edge [pre] (bn3);
+    \node   [do] (do3)   [right of=relu3]      {};
+    %   edge [pre] (relu3);
+    \node   [avg] (avg1)  [right=1.5cm of do3] {}
+        edge [pre] node {$b \text{x} 64 \text{x} 10 \text{x} 10$} (do3);
+    \node   [fc]  (fc1)  [right=1.5cm of avg1] {}
+        edge [pre] node {$b \text{x} 64 \text{x} 5 \text{x} 5$} (avg1);
+    \node   [relu]  (relufc)  [right of=fc1] {};
+    \node   [fc] (fc2) [above right=-0.5cm and 1.5cm of relufc] {}
+        edge [pre] node [sloped,above] {$b \text{x} 1 \text{x} 40$} (relufc);
+    \node   [fc] (fc3) [below right=-0.5cm and 1.5cm of relufc] {}
+        edge [pre] node [sloped,below] {$b \text{x} 1 \text{x} 40$} (relufc);
+    \node   [latent code]   (lc) [right=3cm of fc1] {};
+    \draw ($ (fc2)!0.5!(fc3) + (0.1cm,0cm) $) -- 
+        node [above,text width=1cm,text centered] {reparam\\trick}
+        node [below] {$b \text{x} 1 \text{x} 20$}
+        ($ (lc) + (-0.25cm,0) $) [arrow,>=stealth',semithick];
+    \draw ($ (lc) + (0.25cm,0cm) $) -- ($ (lc) + (0.75cm,0cm) $)
+        -- ($ (lc) + (0.75cm,-1.5cm) $)
+        -- ($ (conv1) + (-0.6cm, -1.5cm) $)
+        -- ($ (conv1) + (-0.6cm, -3cm) $)
+        -- ($ (conv1) + (-0.1cm, -3cm) $) [arrow,>=stealth',semithick];
+    \node [fc] (fc4) [below=2cm of conv1] {};
+    \node [fc] (fc5) [right of=fc4] {};
+    \node [convt] (ct1) [right=1.5cm of fc5] {}
+        edge [pre] node {$b \text{x} 64 \text{x} 5 \text{x} 5$} (fc5);
+    \node   [bn] (bn4)   [right of=ct1]      {};
+    %   edge [pre] (ct1);
+    \node   [relu] (relu4) [right of=bn4]      {};
+    %   edge [pre] (bn4);
+    \node   [do] (do4)   [right of=relu4]    {};
+    %   edge [pre] (relu4);
+    \node   [convt] (ct2)   [right=1.5cm of do4]      {}
+        edge [pre] node {$b \text{x} 64 \text{x} 10 \text{x} 10$} (do4);
+    \node   [bn] (bn5)   [right of=ct2]      {};
+    %   edge [pre] (ct2);
+    \node   [relu] (relu5) [right of=bn5]      {};
+    %   edge [pre] (bn5);
+    \node   [do] (do5)   [right of=relu5]    {};
+    %   edge [pre] (relu5);
+    \node   [convt] (ct3)   [right=1.5cm of do5]      {}
+        edge [pre] node {$b \text{x} 32 \text{x} 10 \text{x} 10$} (do5);
+    \node   [bn] (bn6)   [right of=ct3]      {};
+    %   edge [pre] (ct3);
+    \node   [relu] (relu6) [right of=bn6]      {};
+    %   edge [pre] (bn6);
+    \node   [do] (do6)   [right of=relu6]    {};
+    %   edge [pre] (relu6);
+    \node   [convt] (ct4)   [right=1.5cm of do6]      {}
+        edge [pre] node {$b \text{x} 16 \text{x} 10 \text{x} 10$} (do6);
+    \node   [output] (out)  [right=1.5cm of ct4]      {} 
+        edge [pre] node {$b \text{x} 1 \text{x} 28 \text{x} 28$} (ct4);
+\end{tikzpicture}
+\end{center}
+\caption{Arquitectura VAE para dataset MNIST}%
+\label{fig:mnist_vae}
+\end{figure}
+\shorthandon{<}
+\shorthandon{>}
+
+
+
+\section{Discusión}%
+\label{sec:discusion}
+
+\section{Conclusión}%
+\label{sec:conclusion}
+
 \addcontentsline{toc}{section}{\refname}
-\bibliography{tesis_dm}
+
+\printbibliography
 
 \end{document}
